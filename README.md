@@ -2,6 +2,9 @@
 
 Aplikasi web terpadu untuk pemantauan operasional SPBU, pengawasan stok minyak tangki pendam, kondisi antrean, dan sistem laporan keluhan warga secara real-time. Dibangun sesuai spesifikasi dokumen [PRD_SPBU_Monitoring_System.md](file:///E:/TUBES/SPBU3/PRD_SPBU_Monitoring_System.md) v1.0.
 
+🌐 **Live Demo Vercel**: [https://spbu3-monitor.vercel.app](https://spbu3-monitor.vercel.app)  
+📱 **Portal Warga (Mobile)**: [https://spbu3-monitor.vercel.app/warga](https://spbu3-monitor.vercel.app/warga)
+
 > **Catatan:** Seluruh data yang disajikan merupakan **data demo / simulasi operasional** untuk kebutuhan prototipe sistem Smart City dan audit tugas besar.
 
 ---
