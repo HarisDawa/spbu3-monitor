@@ -69,9 +69,7 @@ if ($needsMigration) {
     $kernel->call('db:seed', ['--force' => true]);
 }
 
-$requestUri = $_SERVER['REQUEST_URI'] ?? '/';
-if (preg_match('#^/(switch-user|users|stations|fuel-types|fuel-stocks|queue-statuses|reports|system)(/|\?|$)#', $requestUri)) {
-    $_SERVER['REQUEST_URI'] = '/api'.$requestUri;
-}
+$_SERVER['SCRIPT_NAME'] = '/index.php';
+$_SERVER['PHP_SELF'] = '/index.php';
 
 $app->handleRequest(Request::capture());
