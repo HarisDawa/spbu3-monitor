@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
 use App\Models\CitizenReport;
+use App\Models\FuelDelivery;
 use App\Models\FuelStock;
 use App\Models\FuelType;
 use App\Models\QueueStatus;
@@ -123,6 +124,31 @@ class DashboardController extends Controller
                 'entity_type' => $item->entity_type,
                 'entity_id' => $item->entity_id,
                 'description' => $item->description,
+                'created_at' => $this->formatDate($item->created_at),
+            ])->all(),
+            'fuel_deliveries' => FuelDelivery::with(['station', 'fuelType'])->latest()->get()->map(fn (FuelDelivery $item): array => [
+                'id' => $item->id,
+                'station_id' => $item->station_id,
+                'station_name' => $item->station?->name ?? $item->station_id,
+                'station_lat' => $item->station?->latitude,
+                'station_lng' => $item->station?->longitude,
+                'fuel_type_id' => $item->fuel_type_id,
+                'fuel_name' => $item->fuelType?->name ?? 'BBM',
+                'fuel_color' => $item->fuelType?->color ?? '#0284c7',
+                'vehicle_name' => $item->vehicle_name,
+                'vehicle_plate' => $item->vehicle_plate,
+                'driver_name' => $item->driver_name,
+                'origin_depot' => $item->origin_depot,
+                'origin_lat' => $item->origin_lat,
+                'origin_lng' => $item->origin_lng,
+                'current_lat' => $item->current_lat,
+                'current_lng' => $item->current_lng,
+                'quantity_liters' => $item->quantity_liters,
+                'status' => $item->status,
+                'eta_minutes' => $item->eta_minutes,
+                'departed_at' => $this->formatDate($item->departed_at),
+                'delivered_at' => $this->formatDate($item->delivered_at),
+                'notes' => $item->notes,
                 'created_at' => $this->formatDate($item->created_at),
             ])->all(),
             'currentUser' => [

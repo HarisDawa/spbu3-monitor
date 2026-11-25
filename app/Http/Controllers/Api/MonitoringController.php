@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\CitizenReport;
+use App\Models\FuelDelivery;
 use App\Models\FuelStock;
 use App\Models\FuelType;
 use App\Models\QueueStatus;
 use App\Models\Station;
+use App\Models\StockHistory;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Http\JsonResponse;
@@ -22,6 +24,15 @@ class MonitoringController extends Controller
     private const REPORT_STATUSES = ['Menunggu', 'Diverifikasi', 'Ditindaklanjuti', 'Selesai', 'Ditolak'];
 
     private const QUEUE_LEVELS = ['Lancar', 'Sedang', 'Padat', 'Tutup'];
+
+    private const DELIVERY_STATUSES = ['Dijadwalkan', 'Dalam Perjalanan', 'Tiba di SPBU', 'Selesai'];
+
+    /** @var array<string, array{lat: float, lng: float}> */
+    private const DEPOT_COORDS = [
+        'TBBM Plumpang' => ['lat' => -6.1200, 'lng' => 106.8900],
+        'TBBM Padalarang' => ['lat' => -6.8450, 'lng' => 107.4900],
+        'TBBM Tanjung Gerem' => ['lat' => -5.9700, 'lng' => 106.0000],
+    ];
 
     public function storeUser(Request $request): JsonResponse
     {
@@ -386,6 +397,182 @@ class MonitoringController extends Controller
         $this->audit($request, 'IMPORT', 'Sistem', '-', 'Impor snapshot JSON ke database');
 
         return response()->json(['ok' => true]);
+    }
+
+    public function storeDelivery(Request $request): JsonResponse
+    {
+        $this->ensureRole($request, ['admin']);
+
+        $data = $request->validate([
+            'station_id' => ['required', 'exists:stations,id'],
+            'fuel_type_id' => ['required', 'exists:fuel_types,id'],
+            'vehicle_name' => ['required', 'string', 'max:150'],
+            'vehicle_plate' => ['required', 'string', 'max:30'],
+            'driver_name' => ['required', 'string', 'max:120'],
+            'origin_depot' => ['required', 'string', 'max:120'],
+            'quantity_liters' => ['required', 'integer', 'min:1000', 'max:40000'],
+            'status' => ['nullable', Rule::in(self::DELIVERY_STATUSES)],
+            'eta_minutes' => ['nullable', 'integer', 'min:0', 'max:600'],
+            'notes' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $station = Station::findOrFail($data['station_id']);
+        $depot = self::DEPOT_COORDS[$data['origin_depot']] ?? self::DEPOT_COORDS['TBBM Plumpang'];
+        $status = $data['status'] ?? 'Dalam Perjalanan';
+
+        $currentLat = $depot['lat'];
+        $currentLng = $depot['lng'];
+        if ($status === 'Dalam Perjalanan') {
+            $currentLat = round(($depot['lat'] + $station->latitude) / 2, 6);
+            $currentLng = round(($depot['lng'] + $station->longitude) / 2, 6);
+        } elseif (in_array($status, ['Tiba di SPBU', 'Selesai'], true)) {
+            $currentLat = $station->latitude;
+            $currentLng = $station->longitude;
+        }
+
+        $id = 'DEL-'.now()->format('Ymd').'-'.str_pad((string) (FuelDelivery::count() + 1), 3, '0', STR_PAD_LEFT);
+        while (FuelDelivery::where('id', $id)->exists()) {
+            $id = 'DEL-'.now()->format('Ymd').'-'.random_int(100, 999);
+        }
+
+        $delivery = FuelDelivery::create([
+            'id' => $id,
+            'station_id' => $data['station_id'],
+            'fuel_type_id' => $data['fuel_type_id'],
+            'vehicle_name' => $data['vehicle_name'],
+            'vehicle_plate' => strtoupper($data['vehicle_plate']),
+            'driver_name' => $data['driver_name'],
+            'origin_depot' => $data['origin_depot'],
+            'origin_lat' => $depot['lat'],
+            'origin_lng' => $depot['lng'],
+            'current_lat' => $currentLat,
+            'current_lng' => $currentLng,
+            'quantity_liters' => $data['quantity_liters'],
+            'status' => $status,
+            'eta_minutes' => $status === 'Selesai' || $status === 'Tiba di SPBU' ? 0 : ($data['eta_minutes'] ?? 30),
+            'departed_at' => $status !== 'Dijadwalkan' ? now() : null,
+            'delivered_at' => $status === 'Selesai' ? now() : null,
+            'notes' => $data['notes'] ?? null,
+        ]);
+
+        if ($status === 'Selesai') {
+            $this->applyDeliveryToStock($request, $delivery);
+        }
+
+        $this->audit($request, 'CREATE', 'Pengiriman', $delivery->id, "Menjadwalkan pengiriman {$delivery->quantity_liters} L ke {$station->name} ({$delivery->vehicle_plate})");
+
+        return response()->json(['ok' => true, 'id' => $delivery->id]);
+    }
+
+    public function updateDelivery(Request $request, FuelDelivery $fuelDelivery): JsonResponse
+    {
+        $this->ensureRole($request, ['admin']);
+
+        $data = $request->validate([
+            'status' => ['sometimes', Rule::in(self::DELIVERY_STATUSES)],
+            'vehicle_name' => ['sometimes', 'string', 'max:150'],
+            'vehicle_plate' => ['sometimes', 'string', 'max:30'],
+            'driver_name' => ['sometimes', 'string', 'max:120'],
+            'quantity_liters' => ['sometimes', 'integer', 'min:1000', 'max:40000'],
+            'eta_minutes' => ['sometimes', 'integer', 'min:0', 'max:600'],
+            'notes' => ['sometimes', 'nullable', 'string', 'max:500'],
+        ]);
+
+        $previousStatus = $fuelDelivery->status;
+        $newStatus = $data['status'] ?? $previousStatus;
+        $station = $fuelDelivery->station;
+
+        if ($newStatus === 'Dalam Perjalanan' && $previousStatus === 'Dijadwalkan') {
+            $data['departed_at'] = now();
+            $data['current_lat'] = round(($fuelDelivery->origin_lat + $station->latitude) / 2, 6);
+            $data['current_lng'] = round(($fuelDelivery->origin_lng + $station->longitude) / 2, 6);
+        } elseif (in_array($newStatus, ['Tiba di SPBU', 'Selesai'], true)) {
+            $data['current_lat'] = $station->latitude;
+            $data['current_lng'] = $station->longitude;
+            $data['eta_minutes'] = 0;
+            if ($newStatus === 'Selesai' && $previousStatus !== 'Selesai') {
+                $data['delivered_at'] = now();
+            }
+        }
+
+        $fuelDelivery->update($data);
+
+        if ($newStatus === 'Selesai' && $previousStatus !== 'Selesai') {
+            $this->applyDeliveryToStock($request, $fuelDelivery);
+        }
+
+        $this->audit($request, 'UPDATE', 'Pengiriman', $fuelDelivery->id, "Memperbarui pengiriman {$fuelDelivery->vehicle_plate}: status {$fuelDelivery->status}");
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function destroyDelivery(Request $request, FuelDelivery $fuelDelivery): JsonResponse
+    {
+        $this->ensureRole($request, ['admin']);
+
+        $id = $fuelDelivery->id;
+        $plate = $fuelDelivery->vehicle_plate;
+        $fuelDelivery->delete();
+        $this->audit($request, 'DELETE', 'Pengiriman', $id, "Menghapus jadwal pengiriman {$id} ({$plate})");
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function simulateDeliveries(Request $request): JsonResponse
+    {
+        $this->ensureRole($request, ['admin']);
+
+        $active = FuelDelivery::with('station')
+            ->where('status', 'Dalam Perjalanan')
+            ->get();
+
+        foreach ($active as $delivery) {
+            if (! $delivery->station) {
+                continue;
+            }
+            $nextLat = round($delivery->current_lat + ($delivery->station->latitude - $delivery->current_lat) * 0.45, 6);
+            $nextLng = round($delivery->current_lng + ($delivery->station->longitude - $delivery->current_lng) * 0.45, 6);
+            $nextEta = max(0, $delivery->eta_minutes - 10);
+            $arrived = $nextEta === 0;
+
+            $delivery->update([
+                'current_lat' => $arrived ? $delivery->station->latitude : $nextLat,
+                'current_lng' => $arrived ? $delivery->station->longitude : $nextLng,
+                'eta_minutes' => $nextEta,
+                'status' => $arrived ? 'Tiba di SPBU' : 'Dalam Perjalanan',
+            ]);
+        }
+
+        $this->audit($request, 'SIMULATE', 'Pengiriman', '-', 'Memperbarui simulasi posisi GPS truk tangki BBM');
+
+        return response()->json(['ok' => true]);
+    }
+
+    private function applyDeliveryToStock(Request $request, FuelDelivery $delivery): void
+    {
+        $stock = FuelStock::firstOrCreate(
+            ['station_id' => $delivery->station_id, 'fuel_type_id' => $delivery->fuel_type_id],
+            ['stock_liters' => 0, 'capacity_liters' => max(25000, $delivery->quantity_liters), 'low_stock_threshold' => 3000, 'updated_by' => $request->user()->name]
+        );
+
+        $previous = $stock->stock_liters;
+        $newStock = min($stock->capacity_liters, $previous + $delivery->quantity_liters);
+
+        $stock->update([
+            'stock_liters' => $newStock,
+            'updated_by' => $request->user()->name,
+        ]);
+
+        StockHistory::create([
+            'fuel_stock_id' => $stock->id,
+            'station_id' => $delivery->station_id,
+            'fuel_name' => $delivery->fuelType?->name ?? 'BBM',
+            'previous_stock' => $previous,
+            'new_stock' => $newStock,
+            'change_amount' => $newStock - $previous,
+            'note' => "Bongkar muat pengiriman {$delivery->id} ({$delivery->vehicle_plate} - {$delivery->quantity_liters} L)",
+            'updated_by' => $request->user()->name,
+        ]);
     }
 
     /** @param list<string> $roles */

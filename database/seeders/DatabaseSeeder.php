@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
     /** @param array<string, mixed> $data */
     public function replace(array $data): void
     {
-        foreach (['sessions', 'activity_logs', 'citizen_reports', 'queue_statuses', 'stock_histories', 'fuel_stocks', 'fuel_types', 'stations', 'users'] as $table) {
+        foreach (['sessions', 'activity_logs', 'citizen_reports', 'fuel_deliveries', 'queue_statuses', 'stock_histories', 'fuel_stocks', 'fuel_types', 'stations', 'users'] as $table) {
             DB::table($table)->delete();
         }
 
@@ -65,6 +65,15 @@ class DatabaseSeeder extends Seeder
         $this->insertRows('activity_logs', $data['activity_logs'], [
             'id', 'user_name', 'user_role', 'action', 'entity_type', 'entity_id', 'description', 'created_at', 'updated_at',
         ]);
+
+        if (! empty($data['fuel_deliveries'])) {
+            $this->insertRows('fuel_deliveries', $data['fuel_deliveries'], [
+                'id', 'station_id', 'fuel_type_id', 'vehicle_name', 'vehicle_plate', 'driver_name',
+                'origin_depot', 'origin_lat', 'origin_lng', 'current_lat', 'current_lng',
+                'quantity_liters', 'status', 'eta_minutes', 'departed_at', 'delivered_at', 'notes',
+                'created_at', 'updated_at',
+            ]);
+        }
     }
 
     /**

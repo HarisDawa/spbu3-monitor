@@ -215,6 +215,81 @@
           .bindPopup(popupContent)
           .addTo(markersLayer);
       });
+
+      // Render TBBM Depots, Routes, and Active Truck Tankers
+      const deliveries = SPBUStore.getDeliveries();
+      const renderedDepots = new Set();
+
+      deliveries.forEach(del => {
+        if (!renderedDepots.has(del.origin_depot) && del.origin_lat && del.origin_lng) {
+          renderedDepots.add(del.origin_depot);
+          const depotIcon = L.divIcon({
+            className: 'custom-pin',
+            html: `<div style="background-color: #9333ea; width: 28px; height: 28px; border-radius: 8px; border: 2px solid #0f172a; box-shadow: 0 4px 10px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">
+                    <i class="fa-solid fa-warehouse"></i>
+                   </div>`,
+            iconSize: [28, 28],
+            iconAnchor: [14, 14]
+          });
+          L.marker([del.origin_lat, del.origin_lng], { icon: depotIcon })
+            .bindPopup(`<div class="p-2 text-xs"><div class="font-bold text-purple-400">Depot Logistik</div><div class="font-bold text-white">${del.origin_depot}</div></div>`)
+            .addTo(markersLayer);
+        }
+
+        if (del.status === 'Selesai') return;
+
+        if (del.origin_lat && del.origin_lng && del.station_lat && del.station_lng) {
+          L.polyline(
+            [[del.origin_lat, del.origin_lng], [del.current_lat, del.current_lng], [del.station_lat, del.station_lng]],
+            { color: '#38bdf8', weight: 2.5, dashArray: '6, 6', opacity: 0.75 }
+          ).addTo(markersLayer);
+        }
+
+        if (del.current_lat && del.current_lng) {
+          const truckColor = del.status === 'Tiba di SPBU' ? '#10b981' : (del.status === 'Dalam Perjalanan' ? '#0284c7' : '#64748b');
+          const truckIcon = L.divIcon({
+            className: 'custom-pin',
+            html: `<div style="background-color: ${truckColor}; width: 32px; height: 32px; border-radius: 50%; border: 3px solid #f8fafc; box-shadow: 0 4px 14px rgba(2,132,199,0.7); display: flex; align-items: center; justify-content: center; color: white; font-size: 13px;">
+                    <i class="fa-solid fa-truck-fast"></i>
+                   </div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+          });
+
+          const truckPopup = `
+            <div class="p-2 space-y-1.5 min-w-[230px] text-xs">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-[10px] text-sky-400 font-bold">${del.id}</span>
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-500/20 text-sky-300">${del.status}</span>
+              </div>
+              <div class="font-bold text-white text-sm">${del.vehicle_name}</div>
+              <div class="text-[11px] text-slate-300">Plat: <span class="font-mono font-bold text-amber-300">${del.vehicle_plate}</span> • Sopir: <strong>${del.driver_name}</strong></div>
+              <div class="bg-slate-800/90 rounded-lg p-2 space-y-1 border border-slate-700">
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Muatan BBM:</span>
+                  <span class="font-bold text-white">${del.fuel_name}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Volume Dibawa:</span>
+                  <span class="font-bold text-emerald-400">${Number(del.quantity_liters).toLocaleString('id-ID')} Liter</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Tujuan:</span>
+                  <span class="font-semibold text-sky-300">${del.station_name}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Estimasi Tiba:</span>
+                  <span class="font-bold text-white">${del.eta_minutes > 0 ? del.eta_minutes + ' menit' : 'Sudah Tiba'}</span>
+                </div>
+              </div>
+            </div>
+          `;
+
+          L.marker([del.current_lat, del.current_lng], { icon: truckIcon, zIndexOffset: 500 })
+            .bindPopup(truckPopup)
+            .addTo(markersLayer);
+        }
+      });
     },
 
     // ================== CHARTS INITIALIZATION ==================
@@ -335,6 +410,7 @@
       this.renderUserBadge();
       this.renderDashboardKPI();
       this.renderMapMarkers();
+      this.renderDeliveriesTable();
       this.updateReportChart();
       this.renderLowStockTable();
       this.renderRecentReportsTable();
@@ -1149,10 +1225,146 @@
     },
 
     // ================== SYSTEM & DEMO CONTROLS ==================
+    renderDeliveriesTable() {
+      const deliveries = SPBUStore.getDeliveries();
+      const activeCount = deliveries.filter(d => d.status !== 'Selesai').length;
+      const badge = document.getElementById('badgeActiveDeliveries');
+      if (badge) badge.textContent = `${activeCount} Aktif`;
+
+      const statusBadge = (status) => {
+        if (status === 'Selesai') return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+        if (status === 'Tiba di SPBU') return 'bg-teal-500/20 text-teal-300 border-teal-500/30';
+        if (status === 'Dalam Perjalanan') return 'bg-sky-500/20 text-sky-300 border-sky-500/30';
+        return 'bg-slate-700 text-slate-300 border-slate-600';
+      };
+
+      const renderRows = (rows, emptyColspan) => {
+        if (rows.length === 0) {
+          return `<tr><td colspan="${emptyColspan}" class="py-6 text-center text-slate-500">Belum ada jadwal pengiriman BBM.</td></tr>`;
+        }
+        return rows.map(d => `
+          <tr class="hover:bg-slate-800/40">
+            <td class="py-2.5 px-3 font-mono text-sky-400 font-bold text-[11px]">${d.id}</td>
+            <td class="py-2.5 px-3">
+              <div class="font-bold text-white">${d.vehicle_name}</div>
+              <div class="text-[11px] font-mono text-amber-300">${d.vehicle_plate}</div>
+            </td>
+            <td class="py-2.5 px-3 text-slate-300">${d.driver_name}</td>
+            <td class="py-2.5 px-3">
+              <div class="font-bold text-white">${d.fuel_name}</div>
+              <div class="text-[11px] font-bold text-emerald-400">${Number(d.quantity_liters).toLocaleString('id-ID')} Liter</div>
+            </td>
+            <td class="py-2.5 px-3">
+              <div class="text-[11px] text-purple-300">${d.origin_depot}</div>
+              <div class="text-xs font-semibold text-white">→ ${d.station_name}</div>
+            </td>
+            <td class="py-2.5 px-3 text-center font-semibold text-slate-300">${d.eta_minutes > 0 ? d.eta_minutes + ' mnt' : '-'}</td>
+            <td class="py-2.5 px-3 text-center">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${statusBadge(d.status)}">${d.status}</span>
+            </td>
+            <td class="py-2.5 px-3 text-right space-x-1 whitespace-nowrap">
+              ${d.status !== 'Selesai' ? `<button onclick="SPBUApp.completeDelivery('${d.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1 rounded text-[11px] font-bold transition" title="Konfirmasi Bongkar Muat"><i class="fa-solid fa-check mr-1"></i>Selesai</button>` : ''}
+              <button onclick="SPBUApp.openDeliveryModal('${d.id}')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1 rounded text-[11px] transition" title="Edit"><i class="fa-solid fa-pen"></i></button>
+              <button onclick="SPBUApp.deleteDelivery('${d.id}')" class="bg-red-500/20 hover:bg-red-500/30 text-red-400 px-2 py-1 rounded text-[11px] transition" title="Hapus"><i class="fa-solid fa-trash"></i></button>
+            </td>
+          </tr>
+        `).join('');
+      };
+
+      const dashBody = document.getElementById('dashboardDeliveriesTableBody');
+      if (dashBody) {
+        dashBody.innerHTML = renderRows(deliveries.slice(0, 6), 8);
+      }
+
+      const fullBody = document.getElementById('deliveriesTableBody');
+      if (fullBody) {
+        const search = (document.getElementById('deliverySearchInput')?.value || '').toLowerCase();
+        const statusFilter = document.getElementById('deliveryStatusFilter')?.value || 'Semua';
+        const filtered = deliveries.filter(d => {
+          const matchStatus = statusFilter === 'Semua' || d.status === statusFilter;
+          const matchSearch = !search || [d.id, d.vehicle_name, d.vehicle_plate, d.driver_name, d.station_name, d.fuel_name].some(v => (v || '').toLowerCase().includes(search));
+          return matchStatus && matchSearch;
+        });
+        fullBody.innerHTML = renderRows(filtered, 8);
+      }
+    },
+
+    simulateDeliveries() {
+      SPBUStore.simulateDeliveries();
+      this.showToast('Posisi GPS armada truk tangki diperbarui!', 'info');
+    },
+
+    openDeliveryModal(id = null) {
+      this.populateStationDropdowns();
+      const modalTitle = document.getElementById('deliveryModalTitle');
+      const formId = document.getElementById('deliveryFormId');
+      if (id) {
+        const d = SPBUStore.getDeliveries().find(item => item.id === id);
+        if (!d) return;
+        modalTitle.textContent = `Edit Pengiriman ${d.id}`;
+        formId.value = d.id;
+        document.getElementById('deliveryFormOrigin').value = d.origin_depot;
+        document.getElementById('deliveryFormStation').value = d.station_id;
+        document.getElementById('deliveryFormVehicle').value = d.vehicle_name;
+        document.getElementById('deliveryFormPlate').value = d.vehicle_plate;
+        document.getElementById('deliveryFormDriver').value = d.driver_name;
+        document.getElementById('deliveryFormFuelType').value = d.fuel_type_id;
+        document.getElementById('deliveryFormQuantity').value = d.quantity_liters;
+        document.getElementById('deliveryFormStatus').value = d.status;
+        document.getElementById('deliveryFormEta').value = d.eta_minutes;
+        document.getElementById('deliveryFormNotes').value = d.notes || '';
+      } else {
+        modalTitle.textContent = 'Jadwalkan Pengiriman BBM';
+        formId.value = '';
+        document.getElementById('deliveryForm').reset();
+        document.getElementById('deliveryFormQuantity').value = 16000;
+        document.getElementById('deliveryFormEta').value = 30;
+        document.getElementById('deliveryFormStatus').value = 'Dalam Perjalanan';
+      }
+      document.getElementById('deliveryModal').classList.remove('hidden');
+    },
+
+    handleDeliverySubmit(e) {
+      e.preventDefault();
+      const id = document.getElementById('deliveryFormId').value;
+      const payload = {
+        origin_depot: document.getElementById('deliveryFormOrigin').value,
+        station_id: document.getElementById('deliveryFormStation').value,
+        vehicle_name: document.getElementById('deliveryFormVehicle').value,
+        vehicle_plate: document.getElementById('deliveryFormPlate').value.toUpperCase(),
+        driver_name: document.getElementById('deliveryFormDriver').value,
+        fuel_type_id: Number(document.getElementById('deliveryFormFuelType').value),
+        quantity_liters: Number(document.getElementById('deliveryFormQuantity').value),
+        status: document.getElementById('deliveryFormStatus').value,
+        eta_minutes: Number(document.getElementById('deliveryFormEta').value || 0),
+        notes: document.getElementById('deliveryFormNotes').value,
+      };
+      this.closeModal('deliveryModal');
+      if (id) {
+        SPBUStore.updateDelivery(id, payload);
+      } else {
+        SPBUStore.addDelivery(payload);
+      }
+    },
+
+    completeDelivery(id) {
+      if (confirm('Konfirmasi truk tangki selesai bongkar muat? Stok BBM di SPBU tujuan akan otomatis bertambah.')) {
+        SPBUStore.updateDelivery(id, { status: 'Selesai' });
+      }
+    },
+
+    deleteDelivery(id) {
+      if (confirm(`Hapus jadwal pengiriman ${id}?`)) {
+        SPBUStore.deleteDelivery(id);
+      }
+    },
+
     populateStationDropdowns() {
       const stations = SPBUStore.getStations();
       const stockFilter = document.getElementById('stockStationFilter');
       const userStation = document.getElementById('userFormStation');
+      const deliveryStation = document.getElementById('deliveryFormStation');
+      const deliveryFuel = document.getElementById('deliveryFormFuelType');
 
       if (stockFilter) {
         const currVal = stockFilter.value;
@@ -1164,6 +1376,15 @@
 
       if (userStation) {
         userStation.innerHTML = stations.map(s => `<option value="${s.id}">${s.name} (${s.code})</option>`).join('');
+      }
+
+      if (deliveryStation) {
+        deliveryStation.innerHTML = stations.map(s => `<option value="${s.id}">${s.name} (${s.code})</option>`).join('');
+      }
+
+      if (deliveryFuel) {
+        const fuels = SPBUStore.getFuelTypes().filter(f => f.is_active);
+        deliveryFuel.innerHTML = fuels.map(f => `<option value="${f.id}">${f.name} (${f.ron})</option>`).join('');
       }
     },
 

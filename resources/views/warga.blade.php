@@ -480,7 +480,7 @@
         <!-- Quick Switch or Logout Simulation -->
         <div class="bg-slate-800/40 border border-slate-800 rounded-2xl p-4 space-y-2 text-xs">
           <h4 class="font-bold text-slate-400 uppercase tracking-wider text-[11px]">Pengujian Multi-Peran</h4>
-          <p class="text-[11px] text-slate-400 leading-relaxed">Anda dapat langsung beralih ke peran Petugas atau Admin untuk mencoba sinkronisasi data dua arah.</p>
+          <p class="text-[11px] text-slate-400 leading-relaxed">Anda dapat langsung beralih ke peran Admin Logistik untuk mencoba sinkronisasi data dua arah.</p>
           <div class="flex space-x-2 pt-1">
             <a href="{{ route('dashboard') }}" class="flex-1 text-center bg-sky-600 hover:bg-sky-500 text-white font-bold py-2 rounded-xl transition">
               Buka Panel Admin

@@ -138,24 +138,10 @@
             </div>
             <button onclick="SPBUApp.switchUser(1)" class="w-full text-left px-3 py-2 hover:bg-slate-800 flex items-center justify-between text-slate-200">
               <div>
-                <div class="font-bold text-sky-400">Admin Pengelola Pusat</div>
+                <div class="font-bold text-sky-400">Admin Logistik Pusat</div>
                 <div class="text-[11px] text-slate-400">admin@spbumonitor.test</div>
               </div>
               <span class="text-[10px] bg-sky-500/20 text-sky-300 px-1.5 py-0.5 rounded">Admin</span>
-            </button>
-            <button onclick="SPBUApp.switchUser(2)" class="w-full text-left px-3 py-2 hover:bg-slate-800 flex items-center justify-between text-slate-200">
-              <div>
-                <div class="font-bold text-amber-400">Ahmad Subarjo</div>
-                <div class="text-[11px] text-slate-400">SPBU Cilandak (34.124.01)</div>
-              </div>
-              <span class="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded">Petugas</span>
-            </button>
-            <button onclick="SPBUApp.switchUser(3)" class="w-full text-left px-3 py-2 hover:bg-slate-800 flex items-center justify-between text-slate-200">
-              <div>
-                <div class="font-bold text-amber-400">Dedi Kurniawan</div>
-                <div class="text-[11px] text-slate-400">SPBU Bekasi Barat (32.171.04)</div>
-              </div>
-              <span class="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded">Petugas</span>
             </button>
             <button onclick="SPBUApp.switchUser(4)" class="w-full text-left px-3 py-2 hover:bg-slate-800 flex items-center justify-between text-slate-200">
               <div>
@@ -199,6 +185,12 @@
             <span>Dashboard Monitoring</span>
           </button>
 
+          <button onclick="SPBUApp.switchTab('deliveries')" id="nav-deliveries" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition">
+            <i class="fa-solid fa-truck-fast w-5 text-center text-sky-400"></i>
+            <span>Pengiriman BBM</span>
+            <span id="badgeActiveDeliveries" class="ml-auto text-[10px] bg-sky-500/20 text-sky-300 border border-sky-500/30 px-1.5 py-0.5 rounded-full font-bold">3 Aktif</span>
+          </button>
+
           <button onclick="SPBUApp.switchTab('stations')" id="nav-stations" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition">
             <i class="fa-solid fa-gas-pump w-5 text-center text-cyan-400"></i>
             <span>Data SPBU (CRUD)</span>
@@ -231,7 +223,7 @@
 
           <button onclick="SPBUApp.switchTab('users')" id="nav-users" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition">
             <i class="fa-solid fa-user-shield w-5 text-center text-purple-400"></i>
-            <span>Pengguna & Petugas</span>
+            <span>Pengguna & Akses</span>
           </button>
 
           <button onclick="SPBUApp.switchTab('logs')" id="nav-logs" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition">
@@ -273,13 +265,17 @@
         <!-- Header & Action Row -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 class="text-2xl font-extrabold text-white tracking-tight">Ringkasan Dashboard SPBU</h1>
-            <p class="text-xs text-slate-400">Pusat komando pemantauan operasional SPBU, sensor ketersediaan minyak tangki pendam, dan laporan warga.</p>
+            <h1 class="text-2xl font-extrabold text-white tracking-tight">Dashboard Monitoring Logistik & Pengiriman BBM</h1>
+            <p class="text-xs text-slate-400">Pusat komando pemantauan pengiriman truk tangki BBM dari TBBM ke SPBU, muatan liter, serta ketersediaan stok.</p>
           </div>
-          <div class="flex items-center space-x-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="SPBUApp.simulateDeliveries()" class="bg-sky-600 hover:bg-sky-500 text-white px-3 py-2 rounded-lg text-xs font-bold transition flex items-center space-x-2 shadow-lg shadow-sky-600/20">
+              <i class="fa-solid fa-truck-fast"></i>
+              <span>Simulasikan Pergerakan Truk</span>
+            </button>
             <button onclick="SPBUApp.triggerSimTick()" class="bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 px-3 py-2 rounded-lg text-xs font-bold transition flex items-center space-x-2">
               <i class="fa-solid fa-wand-magic-sparkles"></i>
-              <span>Simulasikan Perubahan Live</span>
+              <span>Simulasi Stok & Antrean</span>
             </button>
             <button onclick="SPBUApp.exportDataJSON()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center space-x-1.5">
               <i class="fa-solid fa-download"></i>
@@ -368,14 +364,16 @@
           
           <!-- Leaflet Map Panel (2 cols) -->
           <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col space-y-3">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-wrap items-center justify-between gap-2">
               <div class="flex items-center space-x-2">
                 <i class="fa-solid fa-map-location-dot text-sky-400"></i>
-                <h3 class="font-bold text-sm text-white">Peta Sebaran SPBU & Status Ketersediaan Minyak</h3>
+                <h3 class="font-bold text-sm text-white">Peta Live Pengiriman Truk Tangki & Sebaran SPBU</h3>
               </div>
-              <div class="flex items-center space-x-3 text-[11px] text-slate-400">
-                <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span><span>Lancar / Aman</span></span>
-                <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span><span>Menipis / Antre</span></span>
+              <div class="flex flex-wrap items-center gap-3 text-[11px] text-slate-400">
+                <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-sky-400 inline-block"></span><span>Truk Tangki</span></span>
+                <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-purple-400 inline-block"></span><span>TBBM Depot</span></span>
+                <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span><span>SPBU Aman</span></span>
+                <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span><span>Menipis</span></span>
                 <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-red-400 inline-block"></span><span>Kritis / Tutup</span></span>
               </div>
             </div>
@@ -410,6 +408,39 @@
             </div>
           </div>
 
+        </div>
+
+        <!-- ACTIVE FUEL DELIVERIES MONITORING TABLE -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center space-x-2">
+              <i class="fa-solid fa-truck-fast text-sky-400"></i>
+              <h3 class="font-bold text-sm text-white">Monitoring Pengiriman & Armada Truk Tangki BBM</h3>
+            </div>
+            <div class="flex items-center space-x-3">
+              <button onclick="SPBUApp.openDeliveryModal()" class="text-xs bg-sky-600 hover:bg-sky-500 text-white px-3 py-1.5 rounded-lg font-bold transition">+ Jadwalkan Pengiriman</button>
+              <button onclick="SPBUApp.switchTab('deliveries')" class="text-xs text-sky-400 hover:underline font-semibold">Kelola Semua Pengiriman →</button>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="text-slate-400 border-b border-slate-800 uppercase text-[10px]">
+                <tr>
+                  <th class="py-2">Kode</th>
+                  <th class="py-2">Kendaraan & Plat</th>
+                  <th class="py-2">Sopir</th>
+                  <th class="py-2">BBM & Volume Dibawa</th>
+                  <th class="py-2">Rute (Asal → SPBU)</th>
+                  <th class="py-2 text-center">ETA</th>
+                  <th class="py-2 text-center">Status</th>
+                  <th class="py-2 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="dashboardDeliveriesTableBody" class="divide-y divide-slate-800/60 text-slate-200">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <!-- CHARTS & CRITICAL STOCK TABLE -->
@@ -494,6 +525,64 @@
           </div>
         </div>
 
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- SECTION 1B: MONITORING PENGIRIMAN BBM (CRUD) -->
+      <!-- ======================================================== -->
+      <section id="tab-deliveries" class="tab-content hidden space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-extrabold text-white tracking-tight">Monitoring Pengiriman Logistik BBM</h1>
+            <p class="text-xs text-slate-400">Kelola jadwal pengiriman truk tangki dari TBBM ke SPBU, pantau kendaraan, muatan liter, dan konfirmasi bongkar muat.</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="SPBUApp.simulateDeliveries()" class="bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2">
+              <i class="fa-solid fa-location-crosshairs"></i>
+              <span>Simulasi GPS Truk</span>
+            </button>
+            <button onclick="SPBUApp.openDeliveryModal()" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 shadow-lg shadow-sky-600/20">
+              <i class="fa-solid fa-plus"></i>
+              <span>Jadwalkan Pengiriman</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-wrap gap-3 items-center justify-between">
+          <div class="relative flex-1 min-w-[220px]">
+            <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+            <input type="text" id="deliverySearchInput" oninput="SPBUApp.renderDeliveriesTable()" placeholder="Cari kode, kendaraan, plat nomor, sopir, atau SPBU..." class="w-full bg-slate-800 border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500">
+          </div>
+          <select id="deliveryStatusFilter" onchange="SPBUApp.renderDeliveriesTable()" class="bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500">
+            <option value="Semua">Semua Status</option>
+            <option value="Dijadwalkan">Dijadwalkan</option>
+            <option value="Dalam Perjalanan">Dalam Perjalanan</option>
+            <option value="Tiba di SPBU">Tiba di SPBU</option>
+            <option value="Selesai">Selesai</option>
+          </select>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-800/80 text-slate-300 uppercase text-[10px] font-bold border-b border-slate-700">
+                <tr>
+                  <th class="py-3 px-4">Kode Pengiriman</th>
+                  <th class="py-3 px-4">Kendaraan & Plat</th>
+                  <th class="py-3 px-4">Sopir</th>
+                  <th class="py-3 px-4">Jenis BBM & Volume</th>
+                  <th class="py-3 px-4">Asal TBBM → SPBU Tujuan</th>
+                  <th class="py-3 px-4 text-center">ETA</th>
+                  <th class="py-3 px-4 text-center">Status</th>
+                  <th class="py-3 px-4 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="deliveriesTableBody" class="divide-y divide-slate-800 text-slate-200">
+                <!-- Dynamically rendered -->
+              </tbody>
+            </table>
+          </div>
+        </div>
       </section>
 
       <!-- ======================================================== -->
@@ -765,13 +854,13 @@
         
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 class="text-2xl font-extrabold text-white tracking-tight">Pengguna & Penugasan Petugas (CRUD)</h1>
-            <p class="text-xs text-slate-400">Kelola akun Admin, Petugas SPBU dengan penugasan unit, dan profil akun warga.</p>
+            <h1 class="text-2xl font-extrabold text-white tracking-tight">Pengguna & Hak Akses (CRUD)</h1>
+            <p class="text-xs text-slate-400">Kelola akun Admin Logistik dan profil akun warga.</p>
           </div>
           <div>
             <button onclick="SPBUApp.openUserModal()" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 shadow-lg shadow-sky-600/20">
               <i class="fa-solid fa-user-plus"></i>
-              <span>Tambah Petugas / Pengguna</span>
+              <span>Tambah Pengguna</span>
             </button>
           </div>
         </div>
@@ -1149,7 +1238,7 @@
   <div id="userModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col">
       <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
-        <h3 id="userModalTitle" class="font-bold text-base text-white">Tambah Akun Petugas / Pengguna</h3>
+        <h3 id="userModalTitle" class="font-bold text-base text-white">Tambah Akun Pengguna</h3>
         <button onclick="SPBUApp.closeModal('userModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
       <form id="userForm" onsubmit="SPBUApp.handleUserSubmit(event)" class="p-5 space-y-4 text-xs">
@@ -1170,8 +1259,7 @@
           <div>
             <label class="block font-semibold text-slate-300 mb-1">Peran Akun *</label>
             <select id="userFormRole" onchange="SPBUApp.handleRoleChangeInUserModal()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-sky-500">
-              <option value="petugas">Petugas SPBU</option>
-              <option value="admin">Admin Pusat</option>
+              <option value="admin">Admin Logistik</option>
               <option value="warga">Warga</option>
             </select>
           </div>
@@ -1185,6 +1273,80 @@
         <div class="pt-2 flex justify-end space-x-2 border-t border-slate-800">
           <button type="button" onclick="SPBUApp.closeModal('userModal')" class="bg-slate-800 text-slate-300 hover:bg-slate-700 px-4 py-2 rounded-lg font-semibold">Batal</button>
           <button type="submit" class="bg-sky-600 hover:bg-sky-500 text-white px-5 py-2 rounded-lg font-bold">Simpan Akun</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 7. MODAL JADWALKAN / EDIT PENGIRIMAN BBM -->
+  <div id="deliveryModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col">
+      <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
+        <h3 id="deliveryModalTitle" class="font-bold text-base text-white">Jadwalkan Pengiriman BBM</h3>
+        <button onclick="SPBUApp.closeModal('deliveryModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <form id="deliveryForm" onsubmit="SPBUApp.handleDeliverySubmit(event)" class="p-5 space-y-4 text-xs">
+        <input type="hidden" id="deliveryFormId">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Asal Depot (TBBM) *</label>
+            <select id="deliveryFormOrigin" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-sky-500">
+              <option value="TBBM Plumpang">TBBM Plumpang (Jakarta)</option>
+              <option value="TBBM Padalarang">TBBM Padalarang (Bandung)</option>
+              <option value="TBBM Tanjung Gerem">TBBM Tanjung Gerem (Banten)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">SPBU Tujuan *</label>
+            <select id="deliveryFormStation" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-sky-500"></select>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Kendaraan Pengangkut *</label>
+            <input type="text" id="deliveryFormVehicle" placeholder="contoh: Truk Tangki Hino Ranger 16 KL" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-sky-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Plat Nomor *</label>
+            <input type="text" id="deliveryFormPlate" placeholder="contoh: B 9012 TBM" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white uppercase focus:outline-none focus:border-sky-500">
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Nama Sopir *</label>
+            <input type="text" id="deliveryFormDriver" placeholder="contoh: Sutrisno" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-sky-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Jenis BBM *</label>
+            <select id="deliveryFormFuelType" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-sky-500"></select>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Volume Dibawa (Liter) *</label>
+            <input type="number" id="deliveryFormQuantity" min="1000" max="40000" step="1000" value="16000" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-sky-500">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Status *</label>
+            <select id="deliveryFormStatus" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-sky-500">
+              <option value="Dijadwalkan">Dijadwalkan</option>
+              <option value="Dalam Perjalanan" selected>Dalam Perjalanan</option>
+              <option value="Tiba di SPBU">Tiba di SPBU</option>
+              <option value="Selesai">Selesai (Bongkar Muat)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">ETA (Menit)</label>
+            <input type="number" id="deliveryFormEta" min="0" max="600" value="30" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-sky-500">
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Catatan Pengiriman</label>
+          <input type="text" id="deliveryFormNotes" placeholder="contoh: Prioritas pengisian tangki menipis" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-sky-500">
+        </div>
+        <div class="pt-2 flex justify-end space-x-2 border-t border-slate-800">
+          <button type="button" onclick="SPBUApp.closeModal('deliveryModal')" class="bg-slate-800 text-slate-300 hover:bg-slate-700 px-4 py-2 rounded-lg font-semibold">Batal</button>
+          <button type="submit" class="bg-sky-600 hover:bg-sky-500 text-white px-5 py-2 rounded-lg font-bold">Simpan Pengiriman</button>
         </div>
       </form>
     </div>

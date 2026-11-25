@@ -33,6 +33,11 @@ Route::middleware('auth')->group(function () {
     Route::put('/api/queue-statuses/{station}', [MonitoringController::class, 'updateQueue'])->name('api.queue-statuses.update');
     Route::post('/api/queue-statuses/simulate', [MonitoringController::class, 'simulateTick'])->name('api.queue-statuses.simulate');
 
+    Route::post('/api/deliveries', [MonitoringController::class, 'storeDelivery'])->name('api.deliveries.store');
+    Route::put('/api/deliveries/{fuel_delivery}', [MonitoringController::class, 'updateDelivery'])->name('api.deliveries.update');
+    Route::delete('/api/deliveries/{fuel_delivery}', [MonitoringController::class, 'destroyDelivery'])->name('api.deliveries.destroy');
+    Route::post('/api/deliveries/simulate', [MonitoringController::class, 'simulateDeliveries'])->name('api.deliveries.simulate');
+
     Route::post('/api/reports', [MonitoringController::class, 'storeReport'])->name('api.reports.store');
     Route::put('/api/reports/{citizen_report}', [MonitoringController::class, 'updateReport'])->name('api.reports.update');
     Route::delete('/api/reports/{citizen_report}', [MonitoringController::class, 'destroyReport'])->name('api.reports.destroy');

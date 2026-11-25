@@ -13,9 +13,7 @@ use Illuminate\View\View;
 class AuthController extends Controller
 {
     private const DEMO_ACCOUNTS = [
-        ['email' => 'admin@spbumonitor.test', 'label' => 'Admin Pusat', 'role' => 'admin'],
-        ['email' => 'petugas@spbumonitor.test', 'label' => 'Petugas Cilandak', 'role' => 'petugas'],
-        ['email' => 'petugas2@spbumonitor.test', 'label' => 'Petugas Bekasi', 'role' => 'petugas'],
+        ['email' => 'admin@spbumonitor.test', 'label' => 'Admin Logistik Pusat', 'role' => 'admin'],
         ['email' => 'warga@spbumonitor.test', 'label' => 'Warga', 'role' => 'warga'],
     ];
 

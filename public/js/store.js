@@ -41,7 +41,7 @@
     constructor() {
       this.listeners = [];
       this.data = JSON.parse(JSON.stringify(window.SPBU_BOOTSTRAP || {}));
-      for (const key of ['users', 'fuel_types', 'stations', 'fuel_stocks', 'queue_statuses', 'citizen_reports', 'stock_histories', 'activity_logs']) {
+      for (const key of ['users', 'fuel_types', 'stations', 'fuel_stocks', 'queue_statuses', 'citizen_reports', 'stock_histories', 'activity_logs', 'fuel_deliveries']) {
         if (!Array.isArray(this.data[key])) {
           this.data[key] = [];
         }
@@ -491,6 +491,39 @@
       this.logActivity('DELETE_REPORT', 'Laporan Warga', report.id, `Menghapus laporan #${report.id}`);
       request('DELETE', `/api/reports/${encodeURIComponent(report.id)}`);
       return true;
+    }
+
+    // ================== DELIVERIES ==================
+    getDeliveries() {
+      return this.data.fuel_deliveries || [];
+    }
+
+    addDelivery(payload) {
+      return request('POST', '/api/deliveries', payload).then((result) => {
+        if (result?.ok) window.location.reload();
+        return result;
+      });
+    }
+
+    updateDelivery(id, updates) {
+      return request('PUT', `/api/deliveries/${encodeURIComponent(id)}`, updates).then((result) => {
+        if (result?.ok) window.location.reload();
+        return result;
+      });
+    }
+
+    deleteDelivery(id) {
+      return request('DELETE', `/api/deliveries/${encodeURIComponent(id)}`).then((result) => {
+        if (result?.ok) window.location.reload();
+        return result;
+      });
+    }
+
+    simulateDeliveries() {
+      return request('POST', '/api/deliveries/simulate', {}).then((result) => {
+        if (result?.ok) window.location.reload();
+        return result;
+      });
     }
 
     // ================== SYSTEM ==================

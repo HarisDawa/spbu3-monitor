@@ -44,6 +44,7 @@ class MonitoringTest extends TestCase
             ->assertViewHas('bootstrap', fn (array $bootstrap): bool => count($bootstrap['stations']) === 8
                 && count($bootstrap['fuel_stocks']) === 30
                 && count($bootstrap['citizen_reports']) === 10
+                && count($bootstrap['fuel_deliveries']) === 4
                 && $bootstrap['currentUser']['role'] === 'admin');
     }
 
@@ -102,11 +103,59 @@ class MonitoringTest extends TestCase
         $this->assertSame(24500, FuelStock::findOrFail(101)->stock_liters);
     }
 
-    public function test_petugas_cannot_manage_stations(): void
+    public function test_warga_cannot_manage_stations(): void
     {
-        $this->actingAs($this->user('petugas@spbumonitor.test'))
+        $this->actingAs($this->user('warga@spbumonitor.test'))
             ->postJson('/api/stations', $this->stationPayload())
             ->assertForbidden();
+    }
+
+    public function test_admin_can_create_and_complete_delivery_updating_stock(): void
+    {
+        $admin = $this->actingAs($this->user('admin@spbumonitor.test'));
+
+        $response = $admin->postJson('/api/deliveries', [
+            'station_id' => 'SPBU-34.124.01',
+            'fuel_type_id' => 1,
+            'vehicle_name' => 'Truk Tangki Hino 16 KL',
+            'vehicle_plate' => 'B 9999 TBM',
+            'driver_name' => 'Joko',
+            'origin_depot' => 'TBBM Plumpang',
+            'quantity_liters' => 16000,
+            'status' => 'Dalam Perjalanan',
+            'eta_minutes' => 20,
+        ])->assertOk();
+
+        $deliveryId = $response->json('id');
+        $this->assertDatabaseHas('fuel_deliveries', [
+            'id' => $deliveryId,
+            'vehicle_plate' => 'B 9999 TBM',
+            'quantity_liters' => 16000,
+            'status' => 'Dalam Perjalanan',
+        ]);
+
+        $admin->putJson("/api/deliveries/{$deliveryId}", [
+            'status' => 'Selesai',
+        ])->assertOk();
+
+        $this->assertDatabaseHas('fuel_deliveries', [
+            'id' => $deliveryId,
+            'status' => 'Selesai',
+            'eta_minutes' => 0,
+        ]);
+        $this->assertSame(30000, FuelStock::findOrFail(101)->stock_liters);
+    }
+
+    public function test_admin_can_simulate_deliveries(): void
+    {
+        $this->actingAs($this->user('admin@spbumonitor.test'))
+            ->postJson('/api/deliveries/simulate')
+            ->assertOk();
+
+        $this->assertDatabaseHas('fuel_deliveries', [
+            'id' => 'DEL-20261125-001',
+            'eta_minutes' => 15,
+        ]);
     }
 
     public function test_warga_can_submit_report(): void
