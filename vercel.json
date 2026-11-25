@@ -1,4 +1,24 @@
 {
-  "cleanUrls": true,
-  "trailingSlash": false
+  "version": 2,
+  "framework": null,
+  "functions": {
+    "api/index.php": {
+      "runtime": "vercel-php@0.7.4"
+    }
+  },
+  "routes": [
+    {
+      "src": "/(js|css|images|build|favicon\\.ico|robots\\.txt)(.*)",
+      "dest": "/public/$1$2"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.php"
+    }
+  ],
+  "env": {
+    "APP_ENV": "production",
+    "APP_DEBUG": "false",
+    "APP_URL": "https://spbu3-monitor.vercel.app"
+  }
 }

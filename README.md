@@ -1,109 +1,58 @@
-# SPBU Monitoring System (Multi-Portal Smart City Hub)
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-Aplikasi web terpadu untuk pemantauan operasional SPBU, pengawasan stok minyak tangki pendam, kondisi antrean, dan sistem laporan keluhan warga secara real-time. Dibangun sesuai spesifikasi dokumen [PRD_SPBU_Monitoring_System.md](file:///E:/TUBES/SPBU3/PRD_SPBU_Monitoring_System.md) v1.0.
+<p align="center">
+<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+</p>
 
-🌐 **Live Demo Vercel**: [https://spbu3-monitor.vercel.app](https://spbu3-monitor.vercel.app)  
-📱 **Portal Warga (Mobile)**: [https://spbu3-monitor.vercel.app/warga](https://spbu3-monitor.vercel.app/warga)
+## About Laravel
 
-> **Catatan:** Seluruh data yang disajikan merupakan **data demo / simulasi operasional** untuk kebutuhan prototipe sistem Smart City dan audit tugas besar.
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
----
+- [Simple, fast routing engine](https://laravel.com/docs/routing).
+- [Powerful dependency injection container](https://laravel.com/docs/container).
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- [Robust background job processing](https://laravel.com/docs/queues).
+- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-## 🚀 Halaman & Arsitektur Sistem
+Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-Sistem dibagi menjadi **2 antarmuka utama** yang saling tersinkronisasi secara real-time melalui reactive state engine:
+## Learning Laravel
 
-1. **[index.html](file:///E:/TUBES/SPBU3/index.html)** — **Admin & Petugas Monitoring Dashboard (Desktop Optimized)**
-   - **Ringkasan KPI**: Total SPBU, SPBU Beroperasi, Tutup/Uji Tera, Stok Menipis/Kritis, Laporan Warga Belum Ditangani, dan Rata-rata Estimasi Antrean.
-   - **Peta Interaktif Sebaran SPBU (Leaflet)**: Pemetaan geografis SPBU dengan penanda warna status (Hijau = Aman, Kuning = Antre/Menipis, Merah = Kritis/Tutup).
-   - **Grafik Analitik (Chart.js)**: Tren penyaluran stok BBM harian dan distribusi status tindak lanjut aduan warga.
-   - **CRUD Master Data SPBU**: Tambah SPBU baru, perbarui alamat & koordinat lat/lng, toggle status operasional (Buka/Tutup/Perbaikan), dan soft delete.
-   - **CRUD Stok Tangki BBM**: Monitor volume liter, kapasitas maksimum, batas ambang kritis (<threshold), status otomatis (*Tersedia, Menipis, Habis*), dan validasi mutasi stok.
-   - **Riwayat Perubahan Stok**: Jejak audit mutasi dropping truk tangki TBBM vs penyaluran dispenser.
-   - **CRUD Jenis BBM & Harga**: Penyesuaian harga jual per liter (dengan catatan harga diinput pengelola), oktan/cetane (RON 90, 92, 98, CN 48, 51, 53), dan status keaktifan.
-   - **Monitoring Antrean**: Pembaruan kondisi antrean kendaraan (*Lancar, Sedang, Padat*), estimasi waktu tunggu, dan sumber data (Petugas / Sensor ATG / Simulasi).
-   - **CRUD Laporan Warga**: Tinjau aduan masuk, pratinjau bukti foto, perbarui status (*Menunggu ➔ Diverifikasi ➔ Ditindaklanjuti ➔ Selesai / Ditolak*), berikan catatan tindak lanjut, dan hapus laporan spam.
-   - **Manajemen Pengguna & Petugas**: Pendaftaran akun petugas dengan penugasan SPBU tertentu dan hak akses role-based.
-   - **Audit Log (Riwayat Aktivitas)**: Pencatatan otomatis setiap aksi login, mutasi data, perubahan stok, dan penanganan laporan.
-   - **Kontrol Simulasi & Backup**: Reset data bawaan PRD, unduh/impor snapshot JSON, dan trigger live sensor tick.
+Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
 
-2. **[warga.html](file:///E:/TUBES/SPBU3/warga.html)** — **Portal BBM Warga (Mobile-First Experience)**
-   - **Desain Mobile-First**: Dioptimalkan untuk ponsel dengan opsi beralih antara *Mode Frame HP* dan *Mode Layar Penuh*.
-   - **Pencarian Cepat & Filter Pintar**: Pencarian SPBU berdasarkan nama atau jalan, serta filter cepat (*Pertalite Ready, Pertamax Ready, Antrean Lancar <10 mnt, Buka 24 Jam*).
-   - **Kartu SPBU Terdekat**: Jarak estimasi dari posisi pengguna, status buka/tutup, badge kondisi antrean menit tunggu, dan tag ketersediaan BBM.
-   - **Peta Mobile (Leaflet)**: Peta interaktif sentuh dengan tombol *Lokasi Saya* dan bottom sheet detail saat marker ditekan.
-   - **Detail SPBU Lengkap**: Rincian stok BBM dengan indikator bar progres (% tangki terisi), harga per liter, jam operasional, fasilitas, dan tombol langsung rute navigasi Google Maps.
-   - **Form Pengaduan Warga**: Pilih SPBU, kategori masalah, isi deskripsi, unggah foto bukti kamera/galeri, dan otomatis memperoleh nomor registrasi laporan (`LAP-YYYYMMDD-XXX`).
-   - **Tracking Status Laporan 4 Tahap**: Pelacakan visual progres laporan (*Menunggu ➔ Diverifikasi ➔ Ditindaklanjuti ➔ Selesai*) beserta catatan resmi petugas tanggap darurat.
-   - **Profil Pengguna**: Manajemen identitas warga dan peralihan peran cepat.
+In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-3. **[store.js](file:///E:/TUBES/SPBU3/store.js)** — **Reactive State Engine & LocalStorage Database**
-   - Menjamin setiap aksi CRUD (misal: petugas menambah stok di dashboard atau mengubah antrean) langsung tersinkronisasi ke portal warga secara instan tanpa perlu memuat ulang server backend.
+You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
 
----
+## Agentic Development
 
-## 👥 Akun & Peran Pengguna (Multi-Role)
-
-Sistem menyediakan switcher peran langsung pada navbar untuk memudahkan pengujian semua perspektif pengguna:
-
-| Akun / Nama | Email | Peran (Role) | Hak Akses & Penugasan |
-|---|---|---|---|
-| **Admin Pengelola Pusat** | `admin@spbumonitor.test` | `admin` | Akses penuh: Master SPBU, penyesuaian harga BBM, seluruh stok, verifikasi laporan, kelola petugas |
-| **Ahmad Subarjo** | `petugas@spbumonitor.test` | `petugas` | Ditugaskan di **SPBU Pertamina Cilandak (34.124.01)**: Update stok tangki pendam & antrean |
-| **Dedi Kurniawan** | `petugas2@spbumonitor.test` | `petugas` | Ditugaskan di **SPBU Pertamina Bekasi Barat (32.171.04)**: Update stok & antrean unit Bekasi |
-| **Budi Santoso** | `warga@spbumonitor.test` | `warga` | Portal publik warga: Cek stok, cari SPBU lancar, buat laporan, pantau tindak lanjut |
-| **Siti Rahmawati** | `siti@warga.test` | `warga` | Pelapor warga aktif |
-
----
-
-## 📦 Data Awal Demo (Sesuai PRD Section 13)
-
-Sistem telah dilengkapi dengan basis data awal yang kaya:
-- **8 Data SPBU**: Cilandak, Fatmawati, Cawang, Pulogadung, Bekasi Barat, Cikarang, Bandung Timur, Surabaya Ahmad Yani.
-- **6 Jenis BBM Resmi**: Pertalite (Rp 10.000), Pertamax (Rp 13.700), Pertamax Turbo (Rp 15.400), Biosolar (Rp 6.800), Dexlite (Rp 14.200), Pertamina Dex (Rp 15.300).
-- **Variasi Kondisi Stok**: Tersedia, Menipis (contoh: Pertalite SPBU Cawang sisa 1.800L), dan Habis (contoh: Pertalite SPBU Bekasi Barat 0L).
-- **Variasi Antrean**: Lancar (3-8 mnt), Sedang (12-15 mnt), Padat (30 mnt).
-- **10 Laporan Warga**: Mencakup berbagai status (*Menunggu, Diverifikasi, Ditindaklanjuti, Selesai, Ditolak*) dengan foto bukti dan catatan admin.
-- **Log Histori Aktivitas**: Audit trail pencatatan mutasi sistem.
-
----
-
-## 💻 Cara Menjalankan Aplikasi
-
-Aplikasi ini bersifat **standalone static web application** murni tanpa ketergantungan build atau server yang rumit:
-
-### Opsi 1: Buka Langsung di Browser
-- Klik ganda file [index.html](file:///E:/TUBES/SPBU3/index.html) untuk membuka Dashboard Admin & Petugas.
-- Klik ganda file [warga.html](file:///E:/TUBES/SPBU3/warga.html) untuk membuka Portal Warga Mobile.
-
-### Opsi 2: Menggunakan Local HTTP Server (Opsional)
-Jika Anda memiliki Node.js atau Python:
-```bash
-# Menggunakan Python
-cd E:\TUBES\SPBU3
-python -m http.server 8080
-
-# Menggunakan Node npx serve
-npx serve .
-```
-Lalu buka `http://localhost:8080` di browser Anda.
-
----
-
-## ☁️ Deployment ke Vercel
-
-Folder ini sudah dilengkapi file konfigurasi [vercel.json](file:///E:/TUBES/SPBU3/vercel.json) yang siap di-deploy secara instan:
+Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
 
 ```bash
-cd E:\TUBES\SPBU3
-vercel --prod
+composer require laravel/boost --dev
+
+php artisan boost:install
 ```
 
----
+Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
 
-## 🛠️ Ringkasan Teknologi
+## Contributing
 
-- **Antarmuka (Frontend)**: HTML5, CSS3, Tailwind CSS CDN, Font Awesome 6.
-- **Peta Digital**: Leaflet.js + CartoDB Dark/Voyager & OpenStreetMap Tiles.
-- **Grafik Interaktif**: Chart.js 4.
-- **Penyimpanan & Sinkronisasi**: Reactive Engine + LocalStorage API dengan Event Emitter.
+Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+
+## Code of Conduct
+
+In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+
+## Security Vulnerabilities
+
+If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+
+## License
+
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

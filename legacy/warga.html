@@ -70,7 +70,7 @@
   <div class="bg-slate-900 border-b border-slate-800 px-4 py-2 text-xs flex items-center justify-between z-50">
     <div class="flex items-center space-x-2">
       <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-      <span class="font-bold text-white">Portal Warga (Mobile-First)</span>
+      <span class="font-bold text-white">Portal Warga (Peta Interaktif Real-time)</span>
       <span class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded font-semibold hidden sm:inline">Data Demo / Simulasi</span>
     </div>
     <div class="flex items-center space-x-3">
@@ -101,7 +101,7 @@
     </div>
 
     <!-- MOBILE HEADER APP -->
-    <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3 sticky top-0 z-30 flex items-center justify-between">
+    <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-2.5 sticky top-0 z-30 flex items-center justify-between">
       <div class="flex items-center space-x-2.5">
         <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-white font-black text-sm shadow-md shadow-emerald-600/30">
           <i class="fa-solid fa-gas-pump"></i>
@@ -109,7 +109,7 @@
         <div>
           <div class="flex items-center space-x-1.5">
             <span class="font-extrabold text-white text-sm tracking-tight">SPBU<span class="text-emerald-400">Warga</span></span>
-            <span class="text-[9px] bg-emerald-500/20 text-emerald-300 px-1 py-0.2 rounded font-bold">Portal BBM</span>
+            <span class="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded font-bold">Peta Monitoring</span>
           </div>
           <div class="flex items-center space-x-1 text-[10px] text-slate-400">
             <i class="fa-solid fa-location-dot text-emerald-400"></i>
@@ -119,7 +119,7 @@
       </div>
       
       <!-- User / Profile Quick Badge -->
-      <button onclick="WargaApp.switchTab('profil')" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-full border border-slate-700 transition">
+      <button onclick="WargaApp.switchTab('profil')" class="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-full border border-slate-700 transition">
         <div class="w-5 h-5 rounded-full bg-emerald-500/30 text-emerald-400 flex items-center justify-center text-[10px] font-bold">
           <i class="fa-solid fa-user"></i>
         </div>
@@ -127,49 +127,116 @@
       </button>
     </header>
 
-    <!-- CONTENT VIEWS CONTAINER (SCROLLABLE) -->
-    <div class="flex-1 overflow-y-auto custom-scrollbar pb-20">
+    <!-- CONTENT VIEWS CONTAINER -->
+    <div class="flex-1 overflow-hidden relative flex flex-col">
 
       <!-- ======================================================== -->
-      <!-- TAB 1: BERANDA (PRD Section 6.1) -->
+      <!-- TAB 1: BERANDA = PETA SPBU INTERAKTIF (PRD Section 6.1 & 6.2) -->
       <!-- ======================================================== -->
-      <div id="view-beranda" class="warga-view p-4 space-y-4">
+      <div id="view-beranda" class="warga-view flex-1 flex flex-col relative w-full h-full pb-16">
         
-        <!-- Live Notification / Urgent Banner -->
-        <div class="bg-gradient-to-r from-amber-500/20 via-amber-600/20 to-orange-500/20 border border-amber-500/40 rounded-2xl p-3 flex items-start space-x-3 text-xs">
-          <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0 mt-0.5">
-            <i class="fa-solid fa-triangle-exclamation"></i>
+        <!-- TOP FLOATING CONTROLS: SEARCH & FILTER OVERLAY -->
+        <div class="absolute top-3 inset-x-3 z-20 space-y-2 pointer-events-none">
+          
+          <!-- Search Bar -->
+          <div class="relative pointer-events-auto shadow-2xl">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+            <input type="text" id="wargaSearchInput" oninput="WargaApp.handleSearch()" placeholder="Cari SPBU terdekat, nama jalan, BBM..." class="w-full bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-2xl pl-9 pr-8 py-2.5 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition shadow-lg">
+            <button id="clearSearchBtn" onclick="WargaApp.clearSearch()" class="hidden absolute right-3 top-2.5 text-slate-400 hover:text-white text-xs">
+              <i class="fa-solid fa-circle-xmark"></i>
+            </button>
           </div>
-          <div class="text-[11px] text-amber-200 leading-relaxed">
-            <strong>Info Ketersediaan BBM:</strong> Pertalite di SPBU Cawang & Bekasi Barat sedang dalam penanganan dropping truk tangki. Disarankan memilih SPBU Cilandak atau Fatmawati.
+
+          <!-- Quick Filter Pills -->
+          <div class="flex space-x-1.5 overflow-x-auto pb-1 custom-scrollbar text-[11px] font-semibold pointer-events-auto">
+            <button onclick="WargaApp.setFilter('semua')" class="filter-pill active whitespace-nowrap px-3 py-1.5 rounded-full bg-emerald-600 text-white shadow-md transition">
+              Semua SPBU
+            </button>
+            <button onclick="WargaApp.setFilter('pertalite')" class="filter-pill whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-900/90 backdrop-blur-md text-slate-300 hover:bg-slate-800 border border-slate-700 shadow-md transition">
+              Pertalite Ready
+            </button>
+            <button onclick="WargaApp.setFilter('pertamax')" class="filter-pill whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-900/90 backdrop-blur-md text-slate-300 hover:bg-slate-800 border border-slate-700 shadow-md transition">
+              Pertamax Ready
+            </button>
+            <button onclick="WargaApp.setFilter('lancar')" class="filter-pill whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-900/90 backdrop-blur-md text-slate-300 hover:bg-slate-800 border border-slate-700 shadow-md transition">
+              Antrean Lancar (&lt;10 mnt)
+            </button>
+            <button onclick="WargaApp.setFilter('24jam')" class="filter-pill whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-900/90 backdrop-blur-md text-slate-300 hover:bg-slate-800 border border-slate-700 shadow-md transition">
+              Buka 24 Jam
+            </button>
+          </div>
+
+        </div>
+
+        <!-- FLOATING ACTION BUTTONS (Right Side: GPS & Legend) -->
+        <div class="absolute right-3 top-28 z-20 flex flex-col space-y-2 pointer-events-auto">
+          <button onclick="WargaApp.locateUser()" class="w-9 h-9 rounded-xl bg-slate-900/90 backdrop-blur-md border border-slate-700 text-emerald-400 hover:text-white hover:bg-emerald-600 flex items-center justify-center shadow-lg transition" title="Pusatkan ke Lokasi Saya">
+            <i class="fa-solid fa-crosshairs text-sm"></i>
+          </button>
+          <button onclick="WargaApp.switchTab('daftar')" class="w-9 h-9 rounded-xl bg-slate-900/90 backdrop-blur-md border border-slate-700 text-sky-400 hover:text-white hover:bg-sky-600 flex items-center justify-center shadow-lg transition" title="Tampilkan Daftar Kartu">
+            <i class="fa-solid fa-list-ul text-sm"></i>
+          </button>
+        </div>
+
+        <!-- FULL INTERACTIVE LEAFLET MAP -->
+        <div id="wargaMap" class="w-full flex-1 z-10 min-h-[400px]"></div>
+
+        <!-- BOTTOM FLOATING SPBU CARD ON MAP (SLIDE UP CARD) -->
+        <div id="mapBottomCard" class="absolute bottom-18 inset-x-3 z-20 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-2xl p-3.5 shadow-2xl space-y-2.5 transition-all">
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="flex items-center space-x-2">
+                <span id="mapCardCode" class="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.2 rounded border border-emerald-500/20">34.124.01</span>
+                <span id="mapCardStatus" class="text-[10px] px-2 py-0.2 rounded-full font-bold bg-emerald-500/20 text-emerald-400">Buka</span>
+              </div>
+              <h4 id="mapCardName" class="font-bold text-sm text-white mt-1">SPBU Pertamina Cilandak</h4>
+              <p id="mapCardAddress" class="text-[11px] text-slate-400 truncate max-w-[220px]">Jl. TB Simatupang No. 12</p>
+            </div>
+            <div class="text-right">
+              <span id="mapCardDistance" class="text-xs font-black text-emerald-400 block">0.8 km</span>
+              <span class="text-[9px] text-slate-500 uppercase font-semibold">dari Anda</span>
+            </div>
+          </div>
+
+          <!-- Queue and Fuel summary -->
+          <div class="bg-slate-950/80 rounded-xl p-2 flex items-center justify-between text-xs">
+            <div class="flex items-center space-x-1.5">
+              <i class="fa-solid fa-users text-slate-400 text-[11px]"></i>
+              <span class="text-slate-300">Antrean:</span>
+              <span id="mapCardQueue" class="px-2 py-0.2 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Lancar (~5 mnt)</span>
+            </div>
+            <div id="mapCardFuelTags" class="flex space-x-1">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Card Action Buttons -->
+          <div class="pt-1 flex items-center space-x-2 border-t border-slate-800">
+            <button id="mapCardDetailBtn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs transition flex items-center justify-center space-x-1.5 shadow-md shadow-emerald-600/20">
+              <i class="fa-solid fa-circle-info"></i>
+              <span>Lihat Detail Stok & Jam Buka</span>
+            </button>
+            <a id="mapCardRouteBtn" href="#" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-sky-400 p-2 rounded-xl text-xs transition border border-slate-700" title="Rute Google Maps">
+              <i class="fa-solid fa-location-arrow"></i>
+            </a>
           </div>
         </div>
 
-        <!-- Search Bar -->
-        <div class="relative">
-          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-          <input type="text" id="wargaSearchInput" oninput="WargaApp.handleSearch()" placeholder="Cari SPBU terdekat, nama jalan, atau BBM..." class="w-full bg-slate-800/90 border border-slate-700/80 rounded-2xl pl-9 pr-8 py-2.5 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition shadow-inner">
-          <button id="clearSearchBtn" onclick="WargaApp.clearSearch()" class="hidden absolute right-3 top-2.5 text-slate-400 hover:text-white text-xs">
-            <i class="fa-solid fa-circle-xmark"></i>
-          </button>
-        </div>
+      </div>
 
-        <!-- Quick Filter Pills -->
-        <div class="flex space-x-2 overflow-x-auto pb-1 custom-scrollbar text-[11px] font-semibold">
-          <button onclick="WargaApp.setFilter('semua')" class="filter-pill active whitespace-nowrap px-3 py-1.5 rounded-full bg-emerald-600 text-white shadow-sm transition">
-            Semua SPBU
-          </button>
-          <button onclick="WargaApp.setFilter('pertalite')" class="filter-pill whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition">
-            Pertalite Ready
-          </button>
-          <button onclick="WargaApp.setFilter('pertamax')" class="filter-pill whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition">
-            Pertamax Ready
-          </button>
-          <button onclick="WargaApp.setFilter('lancar')" class="filter-pill whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition">
-            Antrean Lancar (&lt;10 mnt)
-          </button>
-          <button onclick="WargaApp.setFilter('24jam')" class="filter-pill whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition">
-            Buka 24 Jam
+      <!-- ======================================================== -->
+      <!-- TAB 2: DAFTAR KARTU SPBU (LIST VIEW) -->
+      <!-- ======================================================== -->
+      <div id="view-daftar" class="warga-view hidden flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4 pb-20">
+        
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-extrabold text-white">Daftar SPBU Terdekat</h2>
+            <p class="text-[11px] text-slate-400">Ringkasan kondisi antrean dan ketersediaan minyak.</p>
+          </div>
+          <button onclick="WargaApp.switchTab('beranda')" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-2.5 py-1 rounded-xl text-xs font-bold transition flex items-center space-x-1">
+            <i class="fa-solid fa-map"></i>
+            <span>Mode Peta</span>
           </button>
         </div>
 
@@ -189,70 +256,26 @@
           </div>
         </div>
 
-        <!-- Section Title & Counter -->
-        <div class="flex items-center justify-between pt-1">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Daftar SPBU Terdekat</h3>
-          <span id="stationCountBadge" class="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">8 Lokasi</span>
-        </div>
-
         <!-- SPBU Cards List Container -->
         <div id="wargaStationList" class="space-y-3">
-          <!-- Populated dynamically via WargaApp.renderStationCards() -->
+          <!-- Populated dynamically -->
         </div>
 
-      </div>
-
-      <!-- ======================================================== -->
-      <!-- TAB 2: PETA SPBU (PRD Section 6.2) -->
-      <!-- ======================================================== -->
-      <div id="view-peta" class="warga-view hidden flex flex-col h-[580px] relative">
-        <!-- Floating Filter inside Map -->
-        <div class="absolute top-3 inset-x-3 z-20 flex space-x-2">
-          <select id="mapBbmFilter" onchange="WargaApp.filterMap()" class="flex-1 bg-slate-900/90 backdrop-blur-md text-slate-200 border border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none shadow-lg">
-            <option value="Semua">Semua Jenis BBM</option>
-            <option value="Pertalite">Pertalite Ready</option>
-            <option value="Pertamax">Pertamax Ready</option>
-            <option value="Biosolar">Biosolar Ready</option>
-          </select>
-          <button onclick="WargaApp.locateUser()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-lg flex items-center space-x-1">
-            <i class="fa-solid fa-crosshairs"></i>
-            <span>Lokasi</span>
-          </button>
-        </div>
-
-        <!-- Mobile Leaflet Map -->
-        <div id="wargaMap" class="w-full flex-1 z-10"></div>
-
-        <!-- Bottom Slide-up Summary Card on Marker Click -->
-        <div id="mapBottomCard" class="hidden absolute bottom-2 inset-x-3 z-20 bg-slate-900 border border-slate-700 rounded-2xl p-3.5 shadow-2xl space-y-2.5">
-          <div class="flex items-center justify-between">
-            <span id="mapCardCode" class="text-[10px] font-mono text-emerald-400 font-bold">34.124.01</span>
-            <span id="mapCardStatus" class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-500/20 text-emerald-400">Buka</span>
-          </div>
-          <h4 id="mapCardName" class="font-bold text-sm text-white">SPBU Pertamina Cilandak</h4>
-          <p id="mapCardAddress" class="text-[11px] text-slate-400 truncate">Jl. TB Simatupang No. 12</p>
-          <div class="flex items-center justify-between text-xs pt-1 border-t border-slate-800">
-            <div id="mapCardQueue" class="text-emerald-400 font-bold">Antrean: Lancar (~5 mnt)</div>
-            <button id="mapCardDetailBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
-              Lihat Detail Stok →
-            </button>
-          </div>
-        </div>
       </div>
 
       <!-- ======================================================== -->
       <!-- TAB 3: DETAIL SPBU LENGKAP (PRD Section 6.3) -->
       <!-- ======================================================== -->
-      <div id="view-detail" class="warga-view hidden p-4 space-y-4">
+      <div id="view-detail" class="warga-view hidden flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4 pb-20">
         
         <!-- Back Navigation -->
         <button onclick="WargaApp.switchTab('beranda')" class="flex items-center space-x-2 text-xs font-bold text-emerald-400 hover:underline">
           <i class="fa-solid fa-arrow-left"></i>
-          <span>Kembali ke Daftar SPBU</span>
+          <span>Kembali ke Peta SPBU</span>
         </button>
 
         <!-- Station Header Card -->
-        <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 space-y-3">
+        <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 space-y-3 shadow-xl">
           <div class="flex items-center justify-between">
             <span id="detailStationCode" class="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">34.124.01</span>
             <span id="detailOperationalStatus" class="text-xs px-2.5 py-0.5 rounded-full font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">BUKA</span>
@@ -313,14 +336,14 @@
       <!-- ======================================================== -->
       <!-- TAB 4: BUAT LAPORAN (PRD Section 6.4) -->
       <!-- ======================================================== -->
-      <div id="view-laporan" class="warga-view hidden p-4 space-y-4">
+      <div id="view-laporan" class="warga-view hidden flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4 pb-20">
         
         <div>
           <h2 class="text-lg font-extrabold text-white">Buat Laporan Warga</h2>
           <p class="text-xs text-slate-400">Sampaikan keluhan antrean, BBM kosong, atau fasilitas bermasalah untuk ditindaklanjuti pengelola SPBU.</p>
         </div>
 
-        <form id="wargaReportForm" onsubmit="WargaApp.handleReportSubmit(event)" class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 space-y-3.5 text-xs">
+        <form id="wargaReportForm" onsubmit="WargaApp.handleReportSubmit(event)" class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 space-y-3.5 text-xs shadow-xl">
           
           <!-- Pilih SPBU -->
           <div>
@@ -349,7 +372,7 @@
             <textarea id="reportDescriptionInput" rows="3" placeholder="Jelaskan kondisi antrean atau masalah yang Anda temui secara rinci..." required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"></textarea>
           </div>
 
-          <!-- Upload Foto Bukti (Mock & Local support) -->
+          <!-- Upload Foto Bukti -->
           <div>
             <label class="block font-semibold text-slate-300 mb-1">Unggah Foto Bukti (Opsional)</label>
             <div class="flex items-center space-x-2">
@@ -393,7 +416,7 @@
       <!-- ======================================================== -->
       <!-- TAB 5: AKTIVITAS & STATUS LAPORAN (PRD Section 6.5) -->
       <!-- ======================================================== -->
-      <div id="view-aktivitas" class="warga-view hidden p-4 space-y-4">
+      <div id="view-aktivitas" class="warga-view hidden flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4 pb-20">
         
         <div>
           <h2 class="text-lg font-extrabold text-white">Status Laporan Saya</h2>
@@ -419,10 +442,10 @@
       <!-- ======================================================== -->
       <!-- TAB 6: PROFIL (PRD Section 6.6) -->
       <!-- ======================================================== -->
-      <div id="view-profil" class="warga-view hidden p-4 space-y-4">
+      <div id="view-profil" class="warga-view hidden flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4 pb-20">
         
         <!-- Profile Card -->
-        <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 text-center space-y-2">
+        <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 text-center space-y-2 shadow-xl">
           <div class="w-16 h-16 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 mx-auto flex items-center justify-center text-2xl font-bold">
             <i class="fa-solid fa-user-circle"></i>
           </div>
@@ -434,7 +457,7 @@
         </div>
 
         <!-- Edit Profile Form -->
-        <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-4 space-y-3 text-xs">
+        <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-4 space-y-3 text-xs shadow-lg">
           <h4 class="font-bold text-white uppercase tracking-wider text-[11px] text-slate-400">Informasi Kontak</h4>
           <div>
             <label class="block font-semibold text-slate-300 mb-1">Nama Lengkap</label>
@@ -473,16 +496,16 @@
     <!-- ======================================================== -->
     <nav class="bg-slate-900/95 backdrop-blur-md border-t border-slate-800 py-1.5 px-3 fixed sm:absolute bottom-0 inset-x-0 z-40 flex justify-around items-center">
       
-      <!-- Beranda -->
+      <!-- Beranda (Peta) -->
       <button onclick="WargaApp.switchTab('beranda')" id="botnav-beranda" class="botnav-item flex flex-col items-center py-1 px-2.5 text-emerald-400 transition">
-        <i class="fa-solid fa-house text-base"></i>
-        <span class="text-[10px] font-bold mt-0.5">Beranda</span>
+        <i class="fa-solid fa-map-location-dot text-base"></i>
+        <span class="text-[10px] font-bold mt-0.5">Peta SPBU</span>
       </button>
 
-      <!-- Peta -->
-      <button onclick="WargaApp.switchTab('peta')" id="botnav-peta" class="botnav-item flex flex-col items-center py-1 px-2.5 text-slate-400 hover:text-slate-200 transition">
-        <i class="fa-solid fa-map-location-dot text-base"></i>
-        <span class="text-[10px] font-semibold mt-0.5">Peta</span>
+      <!-- Daftar SPBU (List) -->
+      <button onclick="WargaApp.switchTab('daftar')" id="botnav-daftar" class="botnav-item flex flex-col items-center py-1 px-2.5 text-slate-400 hover:text-slate-200 transition">
+        <i class="fa-solid fa-list-ul text-base"></i>
+        <span class="text-[10px] font-semibold mt-0.5">Daftar</span>
       </button>
 
       <!-- Buat Laporan (Center CTA) -->

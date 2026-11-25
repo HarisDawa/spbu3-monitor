@@ -1,6 +1,7 @@
 /**
  * SPBU Monitoring System - Portal Warga Mobile Controller Script
  * Menghubungkan UI Warga Mobile dengan SPBUStore (LocalStorage Reactive Engine)
+ * Beranda: Peta Interaktif Real-time + Overlay Pencarian & Quick Bottom Sheet
  */
 
 (function () {
@@ -10,6 +11,7 @@
   let wargaMarkersLayer = null;
   let currentFilter = 'semua';
   let activeDetailStationId = null;
+  let activeSelectedStationId = null;
   let selectedPhotoBase64 = '';
   let isFrameMode = false;
   let myReportsFilterStatus = 'Semua';
@@ -27,15 +29,21 @@
         this.renderAll();
       });
 
-      // 3. Init Mobile Map
+      // 3. Init Mobile Leaflet Map on Beranda
       this.initMap();
 
       // 4. Initial Render
       this.renderAll();
 
-      // 5. Populate Form Defaults
+      // 5. Populate Form Defaults & User Profile
       this.populateFormStationOptions();
       this.loadUserProfile();
+
+      // 6. Set initial selected station on map bottom card
+      const stations = SPBUStore.getStations();
+      if (stations.length > 0) {
+        this.selectStationOnMap(stations[0].id);
+      }
     },
 
     updateMobileClock() {
@@ -62,7 +70,7 @@
       }
 
       if (wargaMapInstance) {
-        setTimeout(() => wargaMapInstance.invalidateSize(), 250);
+        setTimeout(() => wargaMapInstance.invalidateSize(), 300);
       }
     },
 
@@ -88,18 +96,22 @@
         activeNav.classList.remove('text-slate-400');
       }
 
-      // Special handling for Map and Detail view
-      if (tabId === 'peta' && wargaMapInstance) {
+      // Map invalidation when switching to Beranda
+      if (tabId === 'beranda' && wargaMapInstance) {
         setTimeout(() => wargaMapInstance.invalidateSize(), 200);
       }
+
       if (tabId === 'detail' && stationId) {
         this.showStationDetail(stationId);
+      }
+      if (tabId === 'daftar') {
+        this.renderStationCards();
       }
       if (tabId === 'aktivitas') {
         this.renderMyReports(myReportsFilterStatus);
       }
 
-      // Scroll to top
+      // Scroll to top for scrollable views
       const scrollCont = document.querySelector('#appContainer .overflow-y-auto');
       if (scrollCont) scrollCont.scrollTop = 0;
     },
@@ -107,9 +119,13 @@
     // ================== RENDER ALL ==================
     renderAll() {
       this.renderQuickStats();
-      this.renderStationCards();
       this.renderMapMarkers();
+      this.renderStationCards();
       this.populateFormStationOptions();
+
+      if (activeSelectedStationId) {
+        this.selectStationOnMap(activeSelectedStationId);
+      }
       if (this.currentTab === 'detail' && activeDetailStationId) {
         this.showStationDetail(activeDetailStationId);
       }
@@ -135,7 +151,155 @@
       if (statAman) statAman.textContent = safeStocks;
     },
 
-    // ================== SEARCH & FILTER PILLS ==================
+    // ================== MOBILE LEAFLET MAP ON BERANDA ==================
+    initMap() {
+      const mapCont = document.getElementById('wargaMap');
+      if (!mapCont) return;
+
+      // Center around South Jakarta / Cilandak
+      wargaMapInstance = L.map('wargaMap', {
+        zoomControl: false,
+        attributionControl: false
+      }).setView([-6.285, 106.82], 12);
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19
+      }).addTo(wargaMapInstance);
+
+      wargaMarkersLayer = L.layerGroup().addTo(wargaMapInstance);
+      this.renderMapMarkers();
+    },
+
+    renderMapMarkers() {
+      if (!wargaMarkersLayer || !wargaMapInstance) return;
+      wargaMarkersLayer.clearLayers();
+
+      const search = (document.getElementById('wargaSearchInput')?.value || '').toLowerCase();
+      let stations = SPBUStore.getStations();
+
+      // Search filter
+      if (search) {
+        stations = stations.filter(s => s.name.toLowerCase().includes(search) || s.region.toLowerCase().includes(search) || s.address.toLowerCase().includes(search) || s.code.toLowerCase().includes(search));
+      }
+
+      // Filter pills
+      if (currentFilter === 'pertalite') {
+        stations = stations.filter(s => {
+          const stocks = SPBUStore.getStocks(s.id);
+          const p = stocks.find(stk => stk.fuel_name === 'Pertalite');
+          return p && p.status === 'Tersedia';
+        });
+      } else if (currentFilter === 'pertamax') {
+        stations = stations.filter(s => {
+          const stocks = SPBUStore.getStocks(s.id);
+          const p = stocks.find(stk => stk.fuel_name === 'Pertamax');
+          return p && p.status === 'Tersedia';
+        });
+      } else if (currentFilter === 'lancar') {
+        stations = stations.filter(s => {
+          const q = SPBUStore.getQueueStatus(s.id);
+          return q.queue_level === 'Lancar';
+        });
+      } else if (currentFilter === '24jam') {
+        stations = stations.filter(s => s.opening_hours.includes('24 Jam'));
+      }
+
+      const bounds = [];
+
+      stations.forEach(st => {
+        const queue = SPBUStore.getQueueStatus(st.id);
+        const stocks = SPBUStore.getStocks(st.id);
+        const isCritical = stocks.some(s => s.status === 'Habis' || s.status === 'Menipis');
+
+        let markerColor = '#10b981'; // Green
+        if (st.operational_status !== 'Buka') markerColor = '#ef4444';
+        else if (queue.queue_level === 'Padat' || isCritical) {
+          markerColor = queue.queue_level === 'Padat' ? '#ef4444' : '#f59e0b';
+        } else if (queue.queue_level === 'Sedang') {
+          markerColor = '#f59e0b';
+        }
+
+        const customIcon = L.divIcon({
+          className: 'warga-pin',
+          html: `<div style="background-color: ${markerColor}; width: 30px; height: 30px; border-radius: 50%; border: 3px solid #0f172a; box-shadow: 0 4px 10px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">
+                  <i class="fa-solid fa-gas-pump"></i>
+                 </div>`,
+          iconSize: [30, 30],
+          iconAnchor: [15, 15]
+        });
+
+        const marker = L.marker([st.latitude, st.longitude], { icon: customIcon }).addTo(wargaMarkersLayer);
+
+        marker.on('click', () => {
+          this.selectStationOnMap(st.id);
+          wargaMapInstance.panTo([st.latitude, st.longitude], { animate: true, duration: 0.5 });
+        });
+
+        bounds.push([st.latitude, st.longitude]);
+      });
+
+      if (search && bounds.length > 0) {
+        wargaMapInstance.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
+      }
+    },
+
+    selectStationOnMap(stationId) {
+      activeSelectedStationId = stationId;
+      const st = SPBUStore.getStationById(stationId);
+      if (!st) return;
+
+      const queue = SPBUStore.getQueueStatus(st.id);
+      const stocks = SPBUStore.getStocks(st.id);
+
+      // Update card elements
+      document.getElementById('mapCardCode').textContent = st.code;
+      document.getElementById('mapCardName').textContent = st.name;
+      document.getElementById('mapCardAddress').textContent = st.address;
+
+      const opBadge = document.getElementById('mapCardStatus');
+      opBadge.textContent = st.operational_status;
+      opBadge.className = `text-[10px] px-2 py-0.2 rounded-full font-bold ${st.operational_status === 'Buka' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`;
+
+      // Queue badge
+      const queueEl = document.getElementById('mapCardQueue');
+      let queueClass = 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+      if (queue.queue_level === 'Padat') queueClass = 'bg-red-500/20 text-red-400 border-red-500/30';
+      if (queue.queue_level === 'Sedang') queueClass = 'bg-amber-500/20 text-amber-300 border-amber-500/30';
+      queueEl.textContent = `${queue.queue_level} (~${queue.estimated_wait_minutes} mnt)`;
+      queueEl.className = `px-2 py-0.2 rounded-full text-[10px] font-bold border ${queueClass}`;
+
+      // Fuel tags
+      const fuelCont = document.getElementById('mapCardFuelTags');
+      if (fuelCont) {
+        fuelCont.innerHTML = stocks.slice(0, 2).map(s => `
+          <span class="text-[9px] bg-slate-900 border border-slate-800 px-1.5 py-0.5 rounded text-slate-300">
+            ${s.fuel_name}: <strong class="${s.status === 'Tersedia' ? 'text-emerald-400' : 'text-amber-400'}">${s.status}</strong>
+          </span>
+        `).join('');
+      }
+
+      // Actions
+      const detailBtn = document.getElementById('mapCardDetailBtn');
+      if (detailBtn) {
+        detailBtn.onclick = () => {
+          this.switchTab('detail', st.id);
+        };
+      }
+
+      const routeBtn = document.getElementById('mapCardRouteBtn');
+      if (routeBtn) {
+        routeBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${st.latitude},${st.longitude}`;
+      }
+    },
+
+    locateUser() {
+      if (wargaMapInstance) {
+        wargaMapInstance.setView([-6.285, 106.82], 13, { animate: true });
+        this.showToast('Menampilkan SPBU di sekitar lokasi Anda (Jakarta Selatan).', 'info');
+      }
+    },
+
+    // ================== SEARCH & FILTER ==================
     handleSearch() {
       const val = document.getElementById('wargaSearchInput')?.value || '';
       const clearBtn = document.getElementById('clearSearchBtn');
@@ -143,6 +307,7 @@
         if (val) clearBtn.classList.remove('hidden');
         else clearBtn.classList.add('hidden');
       }
+      this.renderMapMarkers();
       this.renderStationCards();
     },
 
@@ -156,14 +321,16 @@
       currentFilter = filterType;
       document.querySelectorAll('.filter-pill').forEach(btn => {
         btn.classList.remove('bg-emerald-600', 'text-white');
-        btn.classList.add('bg-slate-800', 'text-slate-300');
+        btn.classList.add('bg-slate-900/90', 'text-slate-300');
       });
       event.target.classList.add('bg-emerald-600', 'text-white');
-      event.target.classList.remove('bg-slate-800', 'text-slate-300');
+      event.target.classList.remove('bg-slate-900/90', 'text-slate-300');
 
+      this.renderMapMarkers();
       this.renderStationCards();
     },
 
+    // ================== DAFTAR KARTU SPBU (TAB 2) ==================
     renderStationCards() {
       const cont = document.getElementById('wargaStationList');
       if (!cont) return;
@@ -171,23 +338,21 @@
       const search = (document.getElementById('wargaSearchInput')?.value || '').toLowerCase();
       let list = SPBUStore.getStations();
 
-      // Search filter
       if (search) {
         list = list.filter(s => s.name.toLowerCase().includes(search) || s.region.toLowerCase().includes(search) || s.address.toLowerCase().includes(search) || s.code.toLowerCase().includes(search));
       }
 
-      // Category filter pills
       if (currentFilter === 'pertalite') {
         list = list.filter(s => {
           const stocks = SPBUStore.getStocks(s.id);
-          const pertalite = stocks.find(stk => stk.fuel_name === 'Pertalite');
-          return pertalite && pertalite.status === 'Tersedia';
+          const p = stocks.find(stk => stk.fuel_name === 'Pertalite');
+          return p && p.status === 'Tersedia';
         });
       } else if (currentFilter === 'pertamax') {
         list = list.filter(s => {
           const stocks = SPBUStore.getStocks(s.id);
-          const pertamax = stocks.find(stk => stk.fuel_name === 'Pertamax');
-          return pertamax && pertamax.status === 'Tersedia';
+          const p = stocks.find(stk => stk.fuel_name === 'Pertamax');
+          return p && p.status === 'Tersedia';
         });
       } else if (currentFilter === 'lancar') {
         list = list.filter(s => {
@@ -198,22 +363,17 @@
         list = list.filter(s => s.opening_hours.includes('24 Jam'));
       }
 
-      // Update badge count
-      const badge = document.getElementById('stationCountBadge');
-      if (badge) badge.textContent = `${list.length} Lokasi`;
-
       if (list.length === 0) {
         cont.innerHTML = `
           <div class="bg-slate-800/40 border border-slate-800 rounded-2xl p-6 text-center space-y-2">
             <i class="fa-solid fa-gas-pump text-slate-600 text-3xl"></i>
-            <div class="text-xs font-bold text-slate-400">Tidak ada SPBU yang sesuai kriteria</div>
+            <div class="text-xs font-bold text-slate-400">Tidak ada SPBU yang sesuai</div>
             <p class="text-[11px] text-slate-500">Coba ubah kata kunci pencarian atau reset filter.</p>
           </div>
         `;
         return;
       }
 
-      // Mock distance array for realism
       const distances = ['0.8 km', '1.4 km', '2.1 km', '3.5 km', '4.2 km', '6.0 km', '8.5 km', '12 km'];
 
       cont.innerHTML = list.map((st, idx) => {
@@ -221,15 +381,12 @@
         const stocks = SPBUStore.getStocks(st.id);
         const distance = distances[idx % distances.length];
 
-        // Queue Badge
         let queueBadgeClass = 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
         if (queue.queue_level === 'Padat') queueBadgeClass = 'bg-red-500/20 text-red-400 border-red-500/30';
         if (queue.queue_level === 'Sedang') queueBadgeClass = 'bg-amber-500/20 text-amber-300 border-amber-500/30';
 
-        // Operational Badge
         let opBadgeClass = st.operational_status === 'Buka' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400';
 
-        // Fuel availability tags (first 3)
         const fuelTags = stocks.slice(0, 3).map(s => {
           let statusText = s.status === 'Tersedia' ? 'Ready' : (s.status === 'Menipis' ? 'Menipis' : 'Habis');
           let color = s.status === 'Tersedia' ? 'text-emerald-400' : (s.status === 'Menipis' ? 'text-amber-400' : 'text-red-400');
@@ -243,8 +400,6 @@
 
         return `
           <div class="bg-slate-800/80 border border-slate-700/80 hover:border-emerald-500/40 rounded-2xl p-3.5 space-y-2.5 transition shadow-lg">
-            
-            <!-- Top Row: Name, Code & Distance -->
             <div class="flex items-start justify-between">
               <div>
                 <div class="flex items-center space-x-2">
@@ -260,7 +415,6 @@
               </div>
             </div>
 
-            <!-- Queue & Wait Status -->
             <div class="bg-slate-900/90 rounded-xl p-2 flex items-center justify-between text-xs">
               <div class="flex items-center space-x-1.5">
                 <i class="fa-solid fa-users text-slate-400 text-[11px]"></i>
@@ -272,116 +426,29 @@
               </div>
             </div>
 
-            <!-- Fuel Tags Summary -->
             <div class="flex flex-wrap gap-1">
               ${fuelTags}
             </div>
 
-            <!-- Action Buttons -->
             <div class="pt-1 flex items-center space-x-2 border-t border-slate-700/60">
               <button onclick="WargaApp.switchTab('detail', '${st.id}')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs transition flex items-center justify-center space-x-1.5 shadow-md shadow-emerald-600/20">
                 <i class="fa-solid fa-circle-info"></i>
                 <span>Lihat Detail & Stok</span>
               </button>
+              <button onclick="WargaApp.switchTab('beranda'); WargaApp.selectStationOnMap('${st.id}'); wargaMapInstance.setView([${st.latitude}, ${st.longitude}], 14);" class="bg-slate-700 hover:bg-slate-600 text-emerald-400 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1" title="Tampilkan di Peta">
+                <i class="fa-solid fa-map-pin"></i>
+                <span>Peta</span>
+              </button>
               <a href="https://www.google.com/maps/dir/?api=1&destination=${st.latitude},${st.longitude}" target="_blank" class="bg-slate-700 hover:bg-slate-600 text-sky-400 p-2 rounded-xl text-xs transition" title="Petunjuk Arah Google Maps">
                 <i class="fa-solid fa-location-arrow"></i>
               </a>
             </div>
-
           </div>
         `;
       }).join('');
     },
 
-    // ================== MOBILE LEAFLET MAP ==================
-    initMap() {
-      const mapCont = document.getElementById('wargaMap');
-      if (!mapCont) return;
-
-      wargaMapInstance = L.map('wargaMap', {
-        zoomControl: true,
-        attributionControl: false
-      }).setView([-6.28, 106.85], 11);
-
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19
-      }).addTo(wargaMapInstance);
-
-      wargaMarkersLayer = L.layerGroup().addTo(wargaMapInstance);
-      this.renderMapMarkers();
-    },
-
-    renderMapMarkers() {
-      if (!wargaMarkersLayer || !wargaMapInstance) return;
-      wargaMarkersLayer.clearLayers();
-
-      const filterBBM = document.getElementById('mapBbmFilter')?.value || 'Semua';
-      let stations = SPBUStore.getStations();
-
-      stations.forEach(st => {
-        const queue = SPBUStore.getQueueStatus(st.id);
-        const stocks = SPBUStore.getStocks(st.id);
-
-        if (filterBBM !== 'Semua') {
-          const matchFuel = stocks.find(s => s.fuel_name.toLowerCase().includes(filterBBM.toLowerCase()));
-          if (!matchFuel || matchFuel.status !== 'Tersedia') return;
-        }
-
-        let markerColor = '#10b981';
-        if (st.operational_status !== 'Buka') markerColor = '#ef4444';
-        else if (queue.queue_level === 'Padat') markerColor = '#ef4444';
-        else if (queue.queue_level === 'Sedang') markerColor = '#f59e0b';
-
-        const customIcon = L.divIcon({
-          className: 'warga-pin',
-          html: `<div style="background-color: ${markerColor}; width: 28px; height: 28px; border-radius: 50%; border: 3px solid #0f172a; box-shadow: 0 4px 8px rgba(0,0,0,0.5); display: flex; align-items: center; justify-center; color: white; font-size: 11px;">
-                  <i class="fa-solid fa-gas-pump" style="margin: auto;"></i>
-                 </div>`,
-          iconSize: [28, 28],
-          iconAnchor: [14, 14]
-        });
-
-        const marker = L.marker([st.latitude, st.longitude], { icon: customIcon }).addTo(wargaMarkersLayer);
-
-        marker.on('click', () => {
-          this.showMapBottomCard(st, queue);
-        });
-      });
-    },
-
-    showMapBottomCard(st, queue) {
-      const card = document.getElementById('mapBottomCard');
-      if (!card) return;
-
-      document.getElementById('mapCardCode').textContent = st.code;
-      document.getElementById('mapCardStatus').textContent = st.operational_status;
-      document.getElementById('mapCardStatus').className = `text-[10px] px-2 py-0.5 rounded-full font-bold ${st.operational_status === 'Buka' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`;
-      document.getElementById('mapCardName').textContent = st.name;
-      document.getElementById('mapCardAddress').textContent = st.address;
-      document.getElementById('mapCardQueue').textContent = `Antrean: ${queue.queue_level} (~${queue.estimated_wait_minutes} mnt)`;
-
-      const detailBtn = document.getElementById('mapCardDetailBtn');
-      if (detailBtn) {
-        detailBtn.onclick = () => {
-          this.switchTab('detail', st.id);
-        };
-      }
-
-      card.classList.remove('hidden');
-    },
-
-    filterMap() {
-      this.renderMapMarkers();
-    },
-
-    locateUser() {
-      if (wargaMapInstance) {
-        wargaMapInstance.setView([-6.28, 106.82], 13);
-        this.showToast('Menampilkan SPBU terdekat di sekitar Jakarta Selatan.', 'info');
-      }
-    },
-
-    // ================== DETAIL SPBU VIEW (PRD Section 6.3) ==================
+    // ================== DETAIL SPBU VIEW (TAB 3) ==================
     showStationDetail(stationId) {
       activeDetailStationId = stationId;
       const st = SPBUStore.getStationById(stationId);
@@ -436,13 +503,11 @@
                 <span class="px-2 py-0.5 rounded-full text-[10px] font-black border ${statusBadgeClass}">${s.status}</span>
               </div>
 
-              <!-- Liters and Percentage -->
               <div class="flex items-center justify-between text-xs font-mono">
                 <span class="text-slate-300">${s.stock_liters.toLocaleString('id-ID')} / ${s.capacity_liters.toLocaleString('id-ID')} Liter</span>
                 <span class="text-emerald-400 font-bold">Rp ${s.fuel_price.toLocaleString('id-ID')}/L</span>
               </div>
 
-              <!-- Progress Gauge -->
               <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden">
                 <div class="${barColor} h-full rounded-full transition-all duration-300" style="width: ${Math.min(s.percentage, 100)}%"></div>
               </div>
@@ -460,7 +525,7 @@
       this.switchTab('laporan');
     },
 
-    // ================== BUAT LAPORAN (PRD Section 6.4) ==================
+    // ================== BUAT LAPORAN (TAB 4) ==================
     populateFormStationOptions() {
       const select = document.getElementById('reportStationSelect');
       if (!select) return;
@@ -524,17 +589,14 @@
         user_name: user_name
       });
 
-      // Reset Form
       document.getElementById('reportDescriptionInput').value = '';
       this.removePhoto();
 
       this.showToast(`Laporan #${newReport.report_code} berhasil dikirim! Status: Menunggu`, 'success');
-
-      // Switch to tracking view
       this.switchTab('aktivitas');
     },
 
-    // ================== AKTIVITAS & TRACKING (PRD Section 6.5) ==================
+    // ================== AKTIVITAS & TRACKING (TAB 5) ==================
     filterMyReports(status) {
       myReportsFilterStatus = status;
       document.querySelectorAll('.my-rep-filter').forEach(btn => {
@@ -570,7 +632,6 @@
       }
 
       cont.innerHTML = reports.map(r => {
-        // Step progress determination
         const steps = ['Menunggu', 'Diverifikasi', 'Ditindaklanjuti', 'Selesai'];
         let currentStepIndex = steps.indexOf(r.status);
         if (r.status === 'Ditolak') currentStepIndex = -1;
@@ -598,7 +659,6 @@
 
         return `
           <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 space-y-3 shadow-lg">
-            
             <div class="flex items-center justify-between">
               <span class="text-xs font-mono font-bold text-emerald-400">${r.report_code}</span>
               <span class="px-2 py-0.5 rounded-full text-[10px] font-black ${this.getReportStatusBadge(r.status)}">${r.status}</span>
@@ -617,10 +677,8 @@
               </div>
             ` : ''}
 
-            <!-- Stepper Progress Tracker -->
             ${stepperHtml}
 
-            <!-- Admin Note if available -->
             ${r.admin_note ? `
               <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-2.5 text-xs text-emerald-200 space-y-0.5">
                 <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">Catatan Resmi Petugas:</span>
@@ -633,7 +691,6 @@
             <div class="text-[10px] text-slate-500 text-right pt-1 border-t border-slate-700/60">
               Dikirim: ${r.created_at}
             </div>
-
           </div>
         `;
       }).join('');
@@ -650,7 +707,7 @@
       }
     },
 
-    // ================== PROFIL (PRD Section 6.6) ==================
+    // ================== PROFIL (TAB 6) ==================
     loadUserProfile() {
       const user = SPBUStore.getCurrentUser();
       const topName = document.getElementById('topBarUserName');
