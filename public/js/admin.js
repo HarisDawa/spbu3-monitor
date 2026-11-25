@@ -12,6 +12,7 @@
   let reportChartInstance = null;
   let simulationTimer = null;
   let isSimulating = true;
+  let currentMapFilter = 'ALL';
 
   window.SPBUApp = {
     currentTab: 'dashboard',
@@ -67,14 +68,29 @@
 
       // Update sidebar nav active state
       document.querySelectorAll('.nav-item').forEach(el => {
-        el.classList.remove('bg-sky-600', 'text-white', 'shadow-md', 'shadow-sky-600/30');
-        el.classList.add('text-slate-300');
+        el.classList.remove('bg-white/[0.08]', 'text-white', 'border', 'border-white/[0.08]');
+        el.classList.add('text-zinc-400');
       });
       const activeNav = document.getElementById(`nav-${tabId}`);
       if (activeNav) {
-        activeNav.classList.add('bg-sky-600', 'text-white', 'shadow-md', 'shadow-sky-600/30');
-        activeNav.classList.remove('text-slate-300');
+        activeNav.classList.add('bg-white/[0.08]', 'text-white', 'border', 'border-white/[0.08]');
+        activeNav.classList.remove('text-zinc-400');
       }
+
+      const titles = {
+        dashboard: 'Dashboard',
+        deliveries: 'Pengiriman BBM',
+        stations: 'Data SPBU',
+        'fuel-stocks': 'Stok Tangki',
+        'fuel-types': 'Jenis BBM & Harga',
+        queues: 'Antrean SPBU',
+        reports: 'Laporan Warga',
+        users: 'Pengguna & Akses',
+        logs: 'Riwayat Aktivitas',
+        settings: 'Pengaturan',
+      };
+      const titleEl = document.getElementById('headerPageTitle');
+      if (titleEl && titles[tabId]) titleEl.textContent = titles[tabId];
 
       // Re-invalidate map if switching to dashboard
       if (tabId === 'dashboard' && mapInstance) {
@@ -136,8 +152,8 @@
         attributionControl: false
       }).setView([-6.28, 106.85], 11);
 
-      // Dark theme CartoDB tiles
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      // Dark theme CartoDB Dark Matter tiles
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         maxZoom: 19
       }).addTo(mapInstance);
 
@@ -145,11 +161,41 @@
       this.renderMapMarkers();
     },
 
+    setMapFilter(filter) {
+      currentMapFilter = filter;
+      document.querySelectorAll('.map-filter-btn').forEach(btn => {
+        btn.classList.remove('bg-white/[0.1]', 'text-white');
+        btn.classList.add('text-zinc-400');
+      });
+      const active = document.getElementById(`mapFilter-${filter}`);
+      if (active) {
+        active.classList.add('bg-white/[0.1]', 'text-white');
+        active.classList.remove('text-zinc-400');
+      }
+      this.renderMapMarkers();
+    },
+
+    quickSearch(query) {
+      const q = (query || '').trim().toLowerCase();
+      if (!q) return;
+      const deliveries = SPBUStore.getDeliveries();
+      const matchDelivery = deliveries.some(d => [d.vehicle_name, d.vehicle_plate, d.driver_name, d.station_name].some(v => (v || '').toLowerCase().includes(q)));
+      if (matchDelivery && this.currentTab !== 'deliveries' && this.currentTab !== 'dashboard') {
+        this.switchTab('deliveries');
+      }
+      const deliveryInput = document.getElementById('deliverySearchInput');
+      if (deliveryInput) {
+        deliveryInput.value = query;
+        this.renderDeliveriesTable();
+      }
+    },
+
     renderMapMarkers() {
       if (!markersLayer || !mapInstance) return;
       markersLayer.clearLayers();
 
       const stations = SPBUStore.getStations();
+      if (currentMapFilter === 'ALL' || currentMapFilter === 'SPBU') {
       stations.forEach(st => {
         const queue = SPBUStore.getQueueStatus(st.id);
         const stocks = SPBUStore.getStocks(st.id);
@@ -215,7 +261,9 @@
           .bindPopup(popupContent)
           .addTo(markersLayer);
       });
+      }
 
+      if (currentMapFilter === 'ALL' || currentMapFilter === 'TRUK') {
       // Render TBBM Depots, Routes, and Active Truck Tankers
       const deliveries = SPBUStore.getDeliveries();
       const renderedDepots = new Set();
@@ -290,6 +338,7 @@
             .addTo(markersLayer);
         }
       });
+      }
     },
 
     // ================== CHARTS INITIALIZATION ==================
@@ -409,6 +458,7 @@
     renderAll() {
       this.renderUserBadge();
       this.renderDashboardKPI();
+      this.renderLogisticsGauge();
       this.renderMapMarkers();
       this.renderDeliveriesTable();
       this.updateReportChart();
@@ -1225,6 +1275,66 @@
     },
 
     // ================== SYSTEM & DEMO CONTROLS ==================
+    renderLogisticsGauge() {
+      const stocks = SPBUStore.getStocks();
+      const stations = SPBUStore.getStations();
+      const deliveries = SPBUStore.getDeliveries();
+
+      const totalStock = stocks.reduce((sum, s) => sum + (s.stock_liters || 0), 0);
+      const totalCap = stocks.reduce((sum, s) => sum + (s.capacity_liters || 0), 0);
+      const stockPct = totalCap > 0 ? Math.round((totalStock / totalCap) * 100) : 0;
+
+      const openStations = stations.filter(s => s.operational_status === 'Buka').length;
+      const openPct = stations.length > 0 ? Math.round((openStations / stations.length) * 100) : 0;
+
+      const activeDeliveries = deliveries.filter(d => d.status !== 'Selesai').length;
+      const truckPct = deliveries.length > 0 ? Math.round((activeDeliveries / deliveries.length) * 100) : 0;
+
+      const overallPct = Math.min(100, Math.max(0, Math.round((stockPct * 0.6) + (openPct * 0.4))));
+
+      const kpiStockEl = document.getElementById('kpiStockPct');
+      const kpiTruckEl = document.getElementById('kpiTruckPct');
+      const kpiOpenEl = document.getElementById('kpiOpenPct');
+      const centerPctEl = document.getElementById('gaugeCenterPct');
+      const insightEl = document.getElementById('logisticsInsightText');
+
+      if (kpiStockEl) kpiStockEl.textContent = `${stockPct}%`;
+      if (kpiTruckEl) kpiTruckEl.textContent = `${truckPct}%`;
+      if (kpiOpenEl) kpiOpenEl.textContent = `${openPct}%`;
+      if (centerPctEl) centerPctEl.textContent = `${overallPct}%`;
+
+      if (insightEl) {
+        const lowCount = stocks.filter(s => s.status === 'Menipis' || s.status === 'Habis').length;
+        const totalLitersInTransit = deliveries
+          .filter(d => d.status !== 'Selesai')
+          .reduce((sum, d) => sum + (d.quantity_liters || 0), 0);
+        insightEl.innerHTML = `Saat ini terdapat <strong>${activeDeliveries} armada truk tangki</strong> aktif membawa total <strong class="text-emerald-400">${totalLitersInTransit.toLocaleString('id-ID')} Liter</strong> BBM menuju SPBU. Terdeteksi <strong>${lowCount} tangki</strong> dalam status menipis/kritis.`;
+      }
+
+      const arcGroup = document.getElementById('logisticsGaugeArc');
+      if (!arcGroup) return;
+
+      const segments = 20;
+      const filled = Math.round((overallPct / 100) * segments);
+      const cx = 130;
+      const cy = 128;
+      const radius = 98;
+      let html = '';
+
+      for (let i = 0; i < segments; i++) {
+        const angleDeg = 180 + (i / (segments - 1)) * 180;
+        const rad = (angleDeg * Math.PI) / 180;
+        const x = cx + radius * Math.cos(rad);
+        const y = cy + radius * Math.sin(rad);
+        const rot = angleDeg + 90;
+        const isActive = i < filled;
+        const fill = isActive ? '#22c55e' : '#1f242d';
+        const filter = isActive ? 'drop-shadow(0 0 4px rgba(34,197,94,0.45))' : 'none';
+        html += `<rect x="${(x - 4).toFixed(1)}" y="${(y - 14).toFixed(1)}" width="8" height="28" rx="4" fill="${fill}" style="filter:${filter}" transform="rotate(${rot.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)})" />`;
+      }
+      arcGroup.innerHTML = html;
+    },
+
     renderDeliveriesTable() {
       const deliveries = SPBUStore.getDeliveries();
       const activeCount = deliveries.filter(d => d.status !== 'Selesai').length;
@@ -1273,7 +1383,52 @@
 
       const dashBody = document.getElementById('dashboardDeliveriesTableBody');
       if (dashBody) {
-        dashBody.innerHTML = renderRows(deliveries.slice(0, 6), 8);
+        if (deliveries.length === 0) {
+          dashBody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-zinc-500">Belum ada jadwal pengiriman BBM.</td></tr>`;
+        } else {
+          dashBody.innerHTML = deliveries.slice(0, 5).map(d => {
+            const pct = Math.min(100, Math.round((d.quantity_liters / 24000) * 100));
+            const bars = 10;
+            const activeBars = Math.max(1, Math.round((pct / 100) * bars));
+            const barColor = d.status === 'Selesai' ? 'bg-emerald-400' : (d.status === 'Tiba di SPBU' ? 'bg-teal-400' : 'bg-sky-400');
+            const segHtml = Array.from({ length: bars }, (_, idx) =>
+              `<span class="w-1 h-3 rounded-sm ${idx < activeBars ? barColor : 'bg-zinc-800'}"></span>`
+            ).join('');
+
+            return `
+              <tr class="hover:bg-white/[0.02] transition">
+                <td class="py-3 pr-3">
+                  <div class="flex items-center space-x-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-sky-400 text-xs shrink-0">
+                      <i class="fa-solid fa-truck-fast"></i>
+                    </div>
+                    <div>
+                      <div class="font-semibold text-white text-xs">${d.vehicle_name}</div>
+                      <div class="text-[10px] font-mono text-zinc-500">${d.vehicle_plate}</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-3 px-3">
+                  <div class="text-xs text-zinc-200 font-medium">${d.station_name}</div>
+                  <div class="text-[10px] text-zinc-500">${d.driver_name} • ${d.origin_depot}</div>
+                </td>
+                <td class="py-3 px-3">
+                  <div class="flex items-center space-x-2">
+                    <div class="flex items-center space-x-0.5">${segHtml}</div>
+                    <span class="text-xs font-semibold text-white">${Number(d.quantity_liters).toLocaleString('id-ID')} L</span>
+                  </div>
+                  <div class="text-[10px] text-zinc-500 mt-0.5">${d.fuel_name}</div>
+                </td>
+                <td class="py-3 px-3 text-center">
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold border ${statusBadge(d.status)}">${d.status}</span>
+                </td>
+                <td class="py-3 pl-3 text-right whitespace-nowrap">
+                  ${d.status !== 'Selesai' ? `<button onclick="SPBUApp.completeDelivery('${d.id}')" class="text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 px-2.5 py-1 rounded-lg transition">Selesai</button>` : `<span class="text-[11px] text-zinc-500">Terkirim</span>`}
+                </td>
+              </tr>
+            `;
+          }).join('');
+        }
       }
 
       const fullBody = document.getElementById('deliveriesTableBody');

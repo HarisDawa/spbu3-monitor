@@ -8,14 +8,19 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-<body class="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center px-4">
+<body class="min-h-screen bg-[#08090b] text-zinc-100 flex items-center justify-center px-4 antialiased">
   <div class="w-full max-w-md">
     <div class="text-center mb-8">
-      <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-sky-600/20 text-sky-400 text-2xl mb-4">
-        <i class="fa-solid fa-gas-pump"></i>
+      <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/5 border border-emerald-500/30 text-emerald-400 mb-4 shadow-[0_0_25px_rgba(16,185,129,0.2)]">
+        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 22V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v17"/>
+          <path d="M2 22h14"/>
+          <rect x="6" y="7" width="6" height="4" rx="1"/>
+          <path d="M15 9h2a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2 2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L19 5"/>
+        </svg>
       </div>
-      <h1 class="text-2xl font-bold tracking-tight">SPBU Monitoring</h1>
-      <p class="text-sm text-slate-400 mt-1">Smart City Hub — masuk untuk melanjutkan</p>
+      <h1 class="text-2xl font-bold tracking-tight text-white">spbu<span class="text-emerald-400">.hub</span></h1>
+      <p class="text-sm text-zinc-400 mt-1">Monitoring Pengiriman Logistik BBM — masuk untuk melanjutkan</p>
     </div>
 
     @if ($errors->any())

@@ -37,216 +37,228 @@
     }
   </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-family: 'Inter', sans-serif;
+      background-color: #08090b;
+    }
+    .obsidian-card {
+      background: linear-gradient(180deg, #121418 0%, #0d0f12 100%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .obsidian-subcard {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
     }
     .custom-scrollbar::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+      width: 5px;
+      height: 5px;
     }
     .custom-scrollbar::-webkit-scrollbar-track {
-      background: #0f172a;
+      background: #08090b;
     }
     .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #334155;
+      background: #232730;
       border-radius: 4px;
     }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-      background: #475569;
+      background: #333947;
     }
     .leaflet-popup-content-wrapper {
-      background: #0f172a;
+      background: #111317;
       color: #f1f5f9;
       border-radius: 0.75rem;
-      border: 1px solid #334155;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.75);
     }
     .leaflet-popup-tip {
-      background: #0f172a;
+      background: #111317;
+    }
+    .leaflet-container {
+      background: #0b0d11 !important;
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-sky-500 selection:text-white">
+<body class="bg-[#08090b] text-zinc-100 min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-black">
 
-  <!-- TOP BANNER: DEMO SIMULATION NOTICE (Sesuai PRD Section 1) -->
-  <div class="bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-slate-950 px-4 py-1.5 text-xs font-semibold flex items-center justify-between shadow-sm">
-    <div class="flex items-center space-x-2">
-      <span class="inline-flex items-center justify-center bg-slate-950 text-amber-400 text-[10px] uppercase font-bold px-1.5 py-0.5 rounded">Demo</span>
-      <span>Perhatian: Data yang disajikan merupakan <strong>data simulasi / prototype</strong> untuk kebutuhan operasional monitoring Smart City & audit.</span>
-    </div>
-    <div class="hidden md:flex items-center space-x-4">
-      <span id="liveClock" class="font-mono text-slate-900">--:--:-- WIB</span>
-      <button onclick="SPBUApp.resetAllDemo()" class="hover:underline flex items-center space-x-1 font-bold text-slate-900">
-        <i class="fa-solid fa-rotate-left"></i>
-        <span>Reset Data Demo</span>
-      </button>
-    </div>
-  </div>
+  <!-- MAIN TOP NAVBAR (Obsidian Minimalist) -->
+  <header class="bg-[#0a0b0e]/95 backdrop-blur border-b border-white/[0.07] sticky top-0 z-40">
+    <div class="px-4 lg:px-6 h-14 flex items-center justify-between gap-4">
 
-  <!-- MAIN TOP NAVBAR -->
-  <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40">
-    <div class="px-4 lg:px-6 h-16 flex items-center justify-between">
-      
-      <!-- Left: Logo & Sidebar Toggle -->
+      <!-- Left: Sidebar Toggle + Breadcrumb -->
       <div class="flex items-center space-x-3">
-        <button id="sidebarToggleBtn" class="lg:hidden text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800">
-          <i class="fa-solid fa-bars text-lg"></i>
+        <button id="sidebarToggleBtn" class="lg:hidden text-zinc-400 hover:text-white p-2 rounded-lg hover:bg-white/[0.06]">
+          <i class="fa-solid fa-bars text-base"></i>
         </button>
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-sky-500/20 text-white font-black text-xl">
-            <i class="fa-solid fa-gas-pump"></i>
-          </div>
-          <div>
-            <div class="flex items-center space-x-2">
-              <span class="font-extrabold text-lg text-white tracking-tight">SPBU<span class="text-sky-400">Monitor</span></span>
-              <span class="text-[10px] bg-sky-500/10 text-sky-400 border border-sky-500/30 px-1.5 py-0.5 rounded-full font-bold">Smart City Hub</span>
-            </div>
-            <p class="text-[11px] text-slate-400 hidden sm:block">Sistem Monitoring Terpusat & Pengawasan Stok Minyak SPBU</p>
-          </div>
+        <div class="flex items-center space-x-2 text-xs">
+          <span class="w-6 h-6 rounded-md bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-zinc-300">
+            <i class="fa-solid fa-table-columns text-[11px]"></i>
+          </span>
+          <span id="headerPageTitle" class="font-semibold text-white text-sm">Dashboard</span>
+          <span class="hidden sm:inline-flex items-center space-x-1.5 ml-2 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-medium text-emerald-400">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="simStatusText">Demo Live</span>
+          </span>
         </div>
       </div>
 
-      <!-- Right: Role Switcher, Simulation Status & Action Links -->
-      <div class="flex items-center space-x-2 sm:space-x-3">
-        
-        <!-- Live IoT Sensor Simulation Toggle -->
-        <button id="simTickBtn" onclick="SPBUApp.toggleLiveSimulation()" class="hidden md:flex items-center space-x-2 px-3 py-1.5 text-xs font-semibold rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span id="simStatusText">Sensor Simulasi: Aktif</span>
+      <!-- Right: Search, Quick Action & Role Switcher -->
+      <div class="flex items-center space-x-2.5">
+        <div class="hidden md:flex items-center bg-[#121418] border border-white/[0.08] rounded-lg px-3 py-1.5 w-60 text-xs text-zinc-400">
+          <i class="fa-solid fa-magnifying-glass text-[11px] mr-2 text-zinc-500"></i>
+          <input type="text" placeholder="Cari SPBU atau truk..." oninput="SPBUApp.quickSearch(this.value)" class="bg-transparent text-zinc-200 placeholder-zinc-500 focus:outline-none w-full text-xs">
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.05] border border-white/[0.08] text-zinc-500 font-mono">⌘K</span>
+        </div>
+
+        <button onclick="SPBUApp.simulateDeliveries()" class="flex items-center space-x-1.5 bg-[#15181e] hover:bg-[#1c2028] border border-white/[0.1] text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">
+          <i class="fa-solid fa-sparkles text-emerald-400 text-[11px]"></i>
+          <span class="hidden sm:inline">Simulasi Truk</span>
         </button>
 
-        <!-- Link to Warga Mobile Portal -->
-        <a href="{{ route('warga') }}" target="_blank" class="flex items-center space-x-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-md shadow-emerald-900/30 transition">
-          <i class="fa-solid fa-mobile-screen"></i>
-          <span class="hidden sm:inline">Portal Warga (Mobile)</span>
-          <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-        </a>
+        <button id="simTickBtn" onclick="SPBUApp.toggleLiveSimulation()" class="hidden xl:flex items-center space-x-1.5 bg-[#121418] hover:bg-white/[0.06] border border-white/[0.08] px-2.5 py-1.5 rounded-lg text-[11px] text-zinc-300 transition" title="Toggle Auto Simulasi">
+          <i class="fa-regular fa-bell text-zinc-400"></i>
+        </button>
 
-        <!-- Role Switcher Dropdown (PRD Multi-Role) -->
+        <!-- Role Switcher Dropdown -->
         <div class="relative">
-          <button id="roleDropdownBtn" onclick="SPBUApp.toggleRoleMenu()" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-200 transition">
-            <span id="currentRoleBadge" class="w-2 h-2 rounded-full bg-sky-400"></span>
-            <span id="currentUserName">Admin Pusat</span>
-            <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+          <button id="roleDropdownBtn" onclick="SPBUApp.toggleRoleMenu()" class="flex items-center space-x-2 bg-[#121418] hover:bg-white/[0.06] border border-white/[0.08] px-2.5 py-1.5 rounded-lg text-xs font-medium text-zinc-200 transition">
+            <span id="currentRoleBadge" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span id="currentUserName" class="hidden sm:inline">Admin Pusat</span>
+            <i class="fa-solid fa-chevron-down text-[10px] text-zinc-500"></i>
           </button>
-          
+
           <!-- Role Menu -->
-          <div id="roleDropdownMenu" class="hidden absolute right-0 mt-2 w-64 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl py-2 z-50 text-xs">
-            <div class="px-3 py-1.5 border-b border-slate-800 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-              Ganti Peran / Akun Uji Coba
+          <div id="roleDropdownMenu" class="hidden absolute right-0 mt-2 w-64 bg-[#121418] border border-white/[0.1] rounded-xl shadow-2xl py-2 z-50 text-xs">
+            <div class="px-3 py-1.5 border-b border-white/[0.07] text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+              Ganti Peran / Akun Demo
             </div>
-            <button onclick="SPBUApp.switchUser(1)" class="w-full text-left px-3 py-2 hover:bg-slate-800 flex items-center justify-between text-slate-200">
+            <button onclick="SPBUApp.switchUser(1)" class="w-full text-left px-3 py-2 hover:bg-white/[0.05] flex items-center justify-between text-zinc-200">
               <div>
-                <div class="font-bold text-sky-400">Admin Logistik Pusat</div>
-                <div class="text-[11px] text-slate-400">admin@spbumonitor.test</div>
+                <div class="font-semibold text-white">Admin Logistik Pusat</div>
+                <div class="text-[11px] text-zinc-500">admin@spbumonitor.test</div>
               </div>
-              <span class="text-[10px] bg-sky-500/20 text-sky-300 px-1.5 py-0.5 rounded">Admin</span>
+              <span class="text-[10px] bg-emerald-500/15 text-emerald-400 px-1.5 py-0.5 rounded font-semibold">Admin</span>
             </button>
-            <button onclick="SPBUApp.switchUser(4)" class="w-full text-left px-3 py-2 hover:bg-slate-800 flex items-center justify-between text-slate-200">
+            <button onclick="SPBUApp.switchUser(4)" class="w-full text-left px-3 py-2 hover:bg-white/[0.05] flex items-center justify-between text-zinc-200">
               <div>
-                <div class="font-bold text-emerald-400">Budi Santoso</div>
-                <div class="text-[11px] text-slate-400">warga@spbumonitor.test</div>
+                <div class="font-semibold text-white">Budi Santoso</div>
+                <div class="text-[11px] text-zinc-500">warga@spbumonitor.test</div>
               </div>
-              <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded">Warga</span>
+              <span class="text-[10px] bg-sky-500/15 text-sky-400 px-1.5 py-0.5 rounded font-semibold">Warga</span>
             </button>
           </div>
         </div>
-
       </div>
     </div>
   </header>
 
   <!-- BODY CONTENT AREA (SIDEBAR + MAIN VIEW) -->
   <div class="flex-1 flex overflow-hidden">
-    
-    <!-- SIDEBAR NAV (DESKTOP + RESPONSIVE DRAWER) -->
-    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-30 w-64 bg-slate-900/95 lg:bg-slate-900 border-r border-slate-800 transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col justify-between custom-scrollbar overflow-y-auto">
-      <div class="p-4 space-y-6">
-        
-        <!-- User Info Card -->
-        <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3 flex items-center space-x-3">
-          <div id="userAvatar" class="w-10 h-10 rounded-lg bg-sky-600/30 text-sky-400 border border-sky-500/40 flex items-center justify-center font-bold text-base">
-            AD
+
+    <!-- SIDEBAR NAV (Obsidian Reference Style) -->
+    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-30 w-60 bg-[#0a0b0e] border-r border-white/[0.07] transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col justify-between custom-scrollbar overflow-y-auto">
+      <div class="p-3.5 space-y-5">
+
+        <!-- Custom Fuel Pump Logo -->
+        <div class="flex items-center justify-between px-2 pt-1">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500/20 to-emerald-600/5 border border-emerald-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+              <!-- Fuel Pump SVG Logo -->
+              <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 22V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v17"/>
+                <path d="M2 22h14"/>
+                <rect x="6" y="7" width="6" height="4" rx="1"/>
+                <path d="M15 9h2a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2 2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L19 5"/>
+              </svg>
+            </div>
+            <div>
+              <span class="font-bold text-base text-white tracking-tight">spbu<span class="text-emerald-400">.hub</span></span>
+            </div>
           </div>
-          <div class="overflow-hidden">
-            <h4 id="sidebarUserName" class="text-xs font-bold text-white truncate">Admin Pusat</h4>
-            <p id="sidebarUserRole" class="text-[11px] text-sky-400 font-semibold uppercase tracking-wider">Administrator</p>
-            <p id="sidebarStationAssignment" class="text-[10px] text-slate-400 truncate hidden">SPBU: -</p>
-          </div>
+          <span class="text-[10px] font-mono text-zinc-500" id="liveClock">--:--</span>
         </div>
 
         <!-- Navigation Menu Items -->
-        <nav class="space-y-1">
-          <div class="text-[10px] font-bold uppercase text-slate-500 px-3 pb-2 tracking-wider">Menu Navigasi</div>
-          
-          <button onclick="SPBUApp.switchTab('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition">
-            <i class="fa-solid fa-chart-pie w-5 text-center text-sky-400"></i>
-            <span>Dashboard Monitoring</span>
+        <nav class="space-y-0.5">
+          <button onclick="SPBUApp.switchTab('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-zinc-300 hover:bg-white/[0.05] hover:text-white transition">
+            <i class="fa-solid fa-table-columns w-4 text-center text-zinc-400"></i>
+            <span>Dashboard</span>
           </button>
 
-          <button onclick="SPBUApp.switchTab('deliveries')" id="nav-deliveries" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition">
-            <i class="fa-solid fa-truck-fast w-5 text-center text-sky-400"></i>
+          <button onclick="SPBUApp.switchTab('deliveries')" id="nav-deliveries" class="nav-item w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:bg-white/[0.05] hover:text-white transition">
+            <i class="fa-solid fa-truck-fast w-4 text-center text-zinc-400"></i>
             <span>Pengiriman BBM</span>
-            <span id="badgeActiveDeliveries" class="ml-auto text-[10px] bg-sky-500/20 text-sky-300 border border-sky-500/30 px-1.5 py-0.5 rounded-full font-bold">3 Aktif</span>
+            <span id="badgeActiveDeliveries" class="ml-auto text-[10px] bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.5 rounded font-semibold">Live</span>
           </button>
 
-          <button onclick="SPBUApp.switchTab('stations')" id="nav-stations" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition">
-            <i class="fa-solid fa-gas-pump w-5 text-center text-cyan-400"></i>
-            <span>Data SPBU (CRUD)</span>
-            <span id="badgeStationCount" class="ml-auto text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded-full font-bold">8</span>
+          <button onclick="SPBUApp.switchTab('stations')" id="nav-stations" class="nav-item w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:bg-white/[0.05] hover:text-white transition">
+            <i class="fa-solid fa-gas-pump w-4 text-center text-zinc-400"></i>
+            <span>Data SPBU</span>
+            <span id="badgeStationCount" class="ml-auto text-[10px] text-zinc-500 font-mono">8</span>
           </button>
 
-          <button onclick="SPBUApp.switchTab('fuel-stocks')" id="nav-fuel-stocks" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition">
-            <i class="fa-solid fa-oil-well w-5 text-center text-blue-400"></i>
-            <span>Stok BBM (CRUD)</span>
-            <span id="badgeLowStockCount" class="ml-auto text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded-full font-bold">2 Menipis</span>
+          <button onclick="SPBUApp.switchTab('fuel-stocks')" id="nav-fuel-stocks" class="nav-item w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:bg-white/[0.05] hover:text-white transition">
+            <i class="fa-solid fa-oil-well w-4 text-center text-zinc-400"></i>
+            <span>Stok Tangki</span>
+            <span id="badgeLowStockCount" class="ml-auto text-[10px] text-amber-400 font-semibold">2</span>
           </button>
 
-          <button onclick="SPBUApp.switchTab('fuel-types')" id="nav-fuel-types" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition">
-            <i class="fa-solid fa-tags w-5 text-center text-indigo-400"></i>
+          <button onclick="SPBUApp.switchTab('fuel-types')" id="nav-fuel-types" class="nav-item w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:bg-white/[0.05] hover:text-white transition">
+            <i class="fa-solid fa-tags w-4 text-center text-zinc-400"></i>
             <span>Jenis BBM & Harga</span>
           </button>
 
-          <button onclick="SPBUApp.switchTab('queues')" id="nav-queues" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition">
-            <i class="fa-solid fa-users-line w-5 text-center text-emerald-400"></i>
-            <span>Monitoring Antrean</span>
+          <button onclick="SPBUApp.switchTab('queues')" id="nav-queues" class="nav-item w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:bg-white/[0.05] hover:text-white transition">
+            <i class="fa-solid fa-users-line w-4 text-center text-zinc-400"></i>
+            <span>Antrean SPBU</span>
           </button>
 
-          <button onclick="SPBUApp.switchTab('reports')" id="nav-reports" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition">
-            <i class="fa-solid fa-bullhorn w-5 text-center text-amber-400"></i>
+          <button onclick="SPBUApp.switchTab('reports')" id="nav-reports" class="nav-item w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:bg-white/[0.05] hover:text-white transition">
+            <i class="fa-solid fa-triangle-exclamation w-4 text-center text-zinc-400"></i>
             <span>Laporan Warga</span>
-            <span id="badgePendingReports" class="ml-auto text-[10px] bg-red-500/20 text-red-300 border border-red-500/30 px-1.5 py-0.5 rounded-full font-bold">2 Menunggu</span>
+            <span id="badgePendingReports" class="ml-auto w-2 h-2 rounded-full bg-amber-400"></span>
           </button>
 
-          <div class="pt-3 text-[10px] font-bold uppercase text-slate-500 px-3 pb-2 tracking-wider">Sistem & Audit</div>
+          <div class="pt-4 mt-4 border-t border-white/[0.06] space-y-0.5">
+            <button onclick="SPBUApp.switchTab('users')" id="nav-users" class="nav-item w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:bg-white/[0.05] hover:text-white transition">
+              <i class="fa-solid fa-user-shield w-4 text-center text-zinc-400"></i>
+              <span>Pengguna & Akses</span>
+            </button>
 
-          <button onclick="SPBUApp.switchTab('users')" id="nav-users" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition">
-            <i class="fa-solid fa-user-shield w-5 text-center text-purple-400"></i>
-            <span>Pengguna & Akses</span>
-          </button>
+            <button onclick="SPBUApp.switchTab('logs')" id="nav-logs" class="nav-item w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:bg-white/[0.05] hover:text-white transition">
+              <i class="fa-solid fa-clock-rotate-left w-4 text-center text-zinc-400"></i>
+              <span>Riwayat Aktivitas</span>
+            </button>
 
-          <button onclick="SPBUApp.switchTab('logs')" id="nav-logs" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition">
-            <i class="fa-solid fa-clock-rotate-left w-5 text-center text-slate-400"></i>
-            <span>Riwayat Aktivitas</span>
-          </button>
-
-          <button onclick="SPBUApp.switchTab('settings')" id="nav-settings" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition">
-            <i class="fa-solid fa-sliders w-5 text-center text-teal-400"></i>
-            <span>Pengaturan & Demo</span>
-          </button>
+            <button onclick="SPBUApp.switchTab('settings')" id="nav-settings" class="nav-item w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:bg-white/[0.05] hover:text-white transition">
+              <i class="fa-solid fa-gear w-4 text-center text-zinc-400"></i>
+              <span>Pengaturan</span>
+            </button>
+          </div>
         </nav>
       </div>
 
-      <!-- Sidebar Footer Status -->
-      <div class="p-4 border-t border-slate-800 text-[11px] text-slate-500 space-y-1">
-        <div class="flex items-center justify-between text-slate-400">
-          <span>Versi Sistem</span>
-          <span class="font-mono text-sky-400">v1.0 (PRD Ready)</span>
+      <!-- Bottom Card (Portal Warga Mobile) + User Profile -->
+      <div class="p-3.5 space-y-3">
+        <div class="rounded-xl bg-gradient-to-br from-sky-600/30 via-blue-700/20 to-[#111317] border border-sky-500/25 p-3 space-y-2.5">
+          <div>
+            <div class="text-xs font-bold text-white">Portal Warga Mobile</div>
+            <p class="text-[11px] text-zinc-400 leading-snug mt-0.5">Cek stok BBM & posisi SPBU dari tampilan HP.</p>
+          </div>
+          <a href="{{ route('warga') }}" target="_blank" class="block w-full text-center bg-white/[0.08] hover:bg-white/[0.14] border border-white/[0.1] text-white text-[11px] font-semibold py-1.5 rounded-lg transition">
+            Buka Portal Warga
+          </a>
         </div>
-        <div class="flex items-center justify-between text-slate-400">
-          <span>Database</span>
-          <span class="text-emerald-400 font-semibold">Reactive Store</span>
+
+        <div class="flex items-center space-x-2.5 px-1 pt-1 border-t border-white/[0.06]">
+          <div id="userAvatar" class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-xs shrink-0">
+            AD
+          </div>
+          <div class="overflow-hidden flex-1">
+            <h4 id="sidebarUserName" class="text-xs font-semibold text-white truncate">Admin Pusat</h4>
+            <p id="sidebarUserRole" class="text-[10px] text-zinc-500 truncate">admin@spbumonitor.test</p>
+            <p id="sidebarStationAssignment" class="hidden"></p>
+          </div>
         </div>
       </div>
     </aside>
@@ -258,270 +270,222 @@
     <main class="flex-1 overflow-y-auto custom-scrollbar p-4 lg:p-6 space-y-6">
 
       <!-- ======================================================== -->
-      <!-- SECTION 1: DASHBOARD MONITORING (PRD Section 5.1) -->
+      <!-- SECTION 1: DASHBOARD MONITORING (Obsidian Reference Bento) -->
       <!-- ======================================================== -->
-      <section id="tab-dashboard" class="tab-content space-y-6">
-        
-        <!-- Header & Action Row -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h1 class="text-2xl font-extrabold text-white tracking-tight">Dashboard Monitoring Logistik & Pengiriman BBM</h1>
-            <p class="text-xs text-slate-400">Pusat komando pemantauan pengiriman truk tangki BBM dari TBBM ke SPBU, muatan liter, serta ketersediaan stok.</p>
-          </div>
-          <div class="flex flex-wrap items-center gap-2">
-            <button onclick="SPBUApp.simulateDeliveries()" class="bg-sky-600 hover:bg-sky-500 text-white px-3 py-2 rounded-lg text-xs font-bold transition flex items-center space-x-2 shadow-lg shadow-sky-600/20">
-              <i class="fa-solid fa-truck-fast"></i>
-              <span>Simulasikan Pergerakan Truk</span>
-            </button>
-            <button onclick="SPBUApp.triggerSimTick()" class="bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 px-3 py-2 rounded-lg text-xs font-bold transition flex items-center space-x-2">
-              <i class="fa-solid fa-wand-magic-sparkles"></i>
-              <span>Simulasi Stok & Antrean</span>
-            </button>
-            <button onclick="SPBUApp.exportDataJSON()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center space-x-1.5">
-              <i class="fa-solid fa-download"></i>
-              <span class="hidden sm:inline">Export</span>
-            </button>
-          </div>
-        </div>
+      <section id="tab-dashboard" class="tab-content space-y-5">
 
-        <!-- 6 METRIC STAT CARDS (PRD Section 5.1) -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
-          <!-- Total SPBU -->
-          <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 hover:border-sky-500/40 transition">
-            <div class="flex items-center justify-between text-slate-400 mb-2">
-              <span class="text-[11px] font-bold uppercase tracking-wider">Total SPBU</span>
-              <div class="w-7 h-7 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center text-xs">
-                <i class="fa-solid fa-gas-pump"></i>
+        <!-- TOP 2-COLUMN BENTO ROW: SYSTEM/LOGISTICS HEALTH (5 cols) + TREN FORECAST (7 cols) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+          <!-- LEFT: Ketersediaan Logistik & Stok (Segmented Arc Gauge) -->
+          <div class="lg:col-span-5 obsidian-card rounded-2xl p-5 flex flex-col justify-between space-y-4">
+            <div class="flex items-center justify-between">
+              <h2 class="text-sm font-semibold text-white">Ketersediaan Logistik</h2>
+              <button onclick="SPBUApp.simulateDeliveries()" class="text-[11px] font-medium text-zinc-300 bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] px-3 py-1 rounded-lg transition">
+                Simulasi Truk
+              </button>
+            </div>
+
+            <!-- 3 Mini KPIs -->
+            <div class="grid grid-cols-3 gap-2 pt-1">
+              <div class="text-center">
+                <div class="flex items-center justify-center space-x-1.5">
+                  <i class="fa-solid fa-oil-well text-sky-400 text-xs"></i>
+                  <span id="kpiStockPct" class="text-lg font-bold text-white">--%</span>
+                </div>
+                <div class="text-[11px] text-zinc-500 mt-0.5">Stok Aman</div>
+              </div>
+              <div class="text-center">
+                <div class="flex items-center justify-center space-x-1.5">
+                  <i class="fa-solid fa-truck-fast text-emerald-400 text-xs"></i>
+                  <span id="kpiTruckPct" class="text-lg font-bold text-white">--%</span>
+                </div>
+                <div class="text-[11px] text-zinc-500 mt-0.5">Armada Aktif</div>
+              </div>
+              <div class="text-center">
+                <div class="flex items-center justify-center space-x-1.5">
+                  <i class="fa-solid fa-gas-pump text-indigo-400 text-xs"></i>
+                  <span id="kpiOpenPct" class="text-lg font-bold text-white">--%</span>
+                </div>
+                <div class="text-[11px] text-zinc-500 mt-0.5">SPBU Buka</div>
               </div>
             </div>
-            <div id="statTotalSPBU" class="text-2xl font-black text-white">8</div>
-            <div class="text-[11px] text-slate-400 mt-1">Tersebar di 4 Kota</div>
-          </div>
 
-          <!-- SPBU Beroperasi -->
-          <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 hover:border-emerald-500/40 transition">
-            <div class="flex items-center justify-between text-slate-400 mb-2">
-              <span class="text-[11px] font-bold uppercase tracking-wider">Beroperasi</span>
-              <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs">
-                <i class="fa-solid fa-circle-check"></i>
+            <!-- Segmented Emerald Arc Gauge -->
+            <div class="relative flex flex-col items-center justify-center py-2">
+              <svg id="logisticsGaugeSvg" viewBox="0 0 260 150" class="w-full max-w-[270px] overflow-visible">
+                <g id="logisticsGaugeArc"></g>
+              </svg>
+              <div class="absolute bottom-4 flex flex-col items-center">
+                <span id="gaugeCenterPct" class="text-4xl font-bold text-white tracking-tight">76%</span>
+                <span class="text-[11px] text-zinc-500 mt-0.5">kapasitas stok & armada</span>
+              </div>
+              <div class="w-full max-w-[240px] flex justify-between text-[11px] text-zinc-500 font-mono -mt-2 px-2">
+                <span>0</span>
+                <span>100</span>
               </div>
             </div>
-            <div id="statBukaSPBU" class="text-2xl font-black text-emerald-400">7</div>
-            <div class="text-[11px] text-emerald-500/80 mt-1">Siap Melayani Warga</div>
-          </div>
 
-          <!-- SPBU Tidak Beroperasi -->
-          <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 hover:border-red-500/40 transition">
-            <div class="flex items-center justify-between text-slate-400 mb-2">
-              <span class="text-[11px] font-bold uppercase tracking-wider">Tutup / Tera</span>
-              <div class="w-7 h-7 rounded-lg bg-red-500/10 text-red-400 flex items-center justify-center text-xs">
-                <i class="fa-solid fa-circle-xmark"></i>
+            <!-- 2x2 Status Metadata Grid -->
+            <div class="grid grid-cols-2 gap-x-4 gap-y-2 pt-2 border-t border-white/[0.06] text-[11px]">
+              <div class="flex items-center justify-between">
+                <span class="text-zinc-500">Total SPBU:</span>
+                <span class="font-semibold text-zinc-200"><span id="statTotalSPBU">8</span> unit (<span id="statBukaSPBU" class="text-emerald-400">7</span> buka)</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-zinc-500">TBBM Depot:</span>
+                <span class="font-semibold text-emerald-400">Connected</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-zinc-500">Stok Menipis:</span>
+                <span class="font-semibold text-amber-400"><span id="statLowStock">2</span> tangki</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-zinc-500">Laporan Warga:</span>
+                <span class="font-semibold text-zinc-200"><span id="statPendingReports">2</span> menunggu</span>
               </div>
             </div>
-            <div id="statTutupSPBU" class="text-2xl font-black text-red-400">1</div>
-            <div class="text-[11px] text-red-400/80 mt-1">Kalibrasi Tangki</div>
+            <!-- Hidden legacy KPI IDs for compatibility -->
+            <span id="statTutupSPBU" class="hidden">1</span>
+            <span id="statAvgWait" class="hidden">11 mnt</span>
           </div>
 
-          <!-- Stok Menipis -->
-          <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 hover:border-amber-500/40 transition">
-            <div class="flex items-center justify-between text-slate-400 mb-2">
-              <span class="text-[11px] font-bold uppercase tracking-wider">Stok Menipis</span>
-              <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-xs">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-              </div>
-            </div>
-            <div id="statLowStock" class="text-2xl font-black text-amber-400">2</div>
-            <div class="text-[11px] text-amber-400/80 mt-1">Perlu Restock Segera</div>
-          </div>
-
-          <!-- Laporan Belum Ditangani -->
-          <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 hover:border-rose-500/40 transition">
-            <div class="flex items-center justify-between text-slate-400 mb-2">
-              <span class="text-[11px] font-bold uppercase tracking-wider">Laporan Baru</span>
-              <div class="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center text-xs">
-                <i class="fa-solid fa-bullhorn"></i>
-              </div>
-            </div>
-            <div id="statPendingReports" class="text-2xl font-black text-rose-400">2</div>
-            <div class="text-[11px] text-rose-400/80 mt-1">Status: Menunggu</div>
-          </div>
-
-          <!-- Rata-rata Waktu Tunggu -->
-          <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 hover:border-indigo-500/40 transition">
-            <div class="flex items-center justify-between text-slate-400 mb-2">
-              <span class="text-[11px] font-bold uppercase tracking-wider">Rata-rata Antre</span>
-              <div class="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xs">
-                <i class="fa-solid fa-stopwatch"></i>
-              </div>
-            </div>
-            <div id="statAvgWait" class="text-2xl font-black text-indigo-400">11 mnt</div>
-            <div class="text-[11px] text-indigo-400/80 mt-1">Kondisi: Sedang</div>
-          </div>
-        </div>
-
-        <!-- INTERACTIVE LEAFLET MAP & RECENT CRITICAL ALERT -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          <!-- Leaflet Map Panel (2 cols) -->
-          <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col space-y-3">
-            <div class="flex flex-wrap items-center justify-between gap-2">
+          <!-- RIGHT: Tren Pengiriman & Stok BBM + Insight Box -->
+          <div class="lg:col-span-7 obsidian-card rounded-2xl p-5 flex flex-col justify-between space-y-4">
+            <div class="flex items-center justify-between">
               <div class="flex items-center space-x-2">
-                <i class="fa-solid fa-map-location-dot text-sky-400"></i>
-                <h3 class="font-bold text-sm text-white">Peta Live Pengiriman Truk Tangki & Sebaran SPBU</h3>
+                <i class="fa-solid fa-sparkles text-zinc-300 text-xs"></i>
+                <h2 class="text-sm font-semibold text-white">Tren Pengiriman & Stok BBM</h2>
               </div>
-              <div class="flex flex-wrap items-center gap-3 text-[11px] text-slate-400">
-                <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-sky-400 inline-block"></span><span>Truk Tangki</span></span>
-                <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-purple-400 inline-block"></span><span>TBBM Depot</span></span>
-                <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span><span>SPBU Aman</span></span>
-                <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span><span>Menipis</span></span>
-                <span class="flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-red-400 inline-block"></span><span>Kritis / Tutup</span></span>
-              </div>
-            </div>
-            <!-- Map Container -->
-            <div id="adminMap" class="w-full h-80 rounded-xl overflow-hidden border border-slate-800 z-10"></div>
-          </div>
-
-          <!-- Laporan Status Donut & Quick Action (1 col) -->
-          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between space-y-4">
-            <div>
-              <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-                <h3 class="font-bold text-sm text-white flex items-center space-x-2">
-                  <i class="fa-solid fa-chart-pie text-amber-400"></i>
-                  <span>Status Penanganan Laporan</span>
-                </h3>
-                <span class="text-[11px] text-slate-400">Total 10 Aduan</span>
-              </div>
-              <div class="relative h-48 flex items-center justify-center my-2">
-                <canvas id="reportChart"></canvas>
-              </div>
+              <button onclick="SPBUApp.triggerSimTick()" class="text-[11px] font-medium text-zinc-300 bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] px-3 py-1 rounded-lg transition flex items-center space-x-1.5">
+                <i class="fa-solid fa-rotate text-[10px]"></i>
+                <span>Refresh</span>
+              </button>
             </div>
 
-            <!-- Petugas Active Panel Notice -->
-            <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-3 text-xs space-y-2">
-              <div class="font-bold text-sky-400 flex items-center space-x-1.5">
-                <i class="fa-solid fa-user-check"></i>
-                <span>Akses Pengguna Aktif:</span>
+            <div class="h-56 w-full">
+              <canvas id="stockTrendChart"></canvas>
+            </div>
+
+            <!-- Insight Box -->
+            <div class="obsidian-subcard rounded-xl p-3.5 space-y-1.5">
+              <div class="flex items-center space-x-1.5 text-xs font-semibold text-white">
+                <i class="fa-solid fa-sparkles text-emerald-400 text-[11px]"></i>
+                <span>Logistik Insight</span>
               </div>
-              <p id="roleNoticeText" class="text-slate-300 text-[11px]">
-                Anda masuk sebagai <strong>Admin Pusat</strong>. Memiliki wewenang penuh untuk mengelola master data SPBU, stok minyak, harga BBM, dan menindaklanjuti seluruh aduan warga.
+              <p id="logisticsInsightText" class="text-[11px] text-zinc-400 leading-relaxed">
+                Armada truk tangki aktif memantau pasokan ke SPBU prioritas. Klik <strong>Simulasi Truk</strong> untuk memperbarui posisi GPS armada atau konfirmasi bongkar muat saat tiba.
               </p>
             </div>
           </div>
 
         </div>
 
-        <!-- ACTIVE FUEL DELIVERIES MONITORING TABLE -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <div class="flex items-center space-x-2">
-              <i class="fa-solid fa-truck-fast text-sky-400"></i>
-              <h3 class="font-bold text-sm text-white">Monitoring Pengiriman & Armada Truk Tangki BBM</h3>
-            </div>
-            <div class="flex items-center space-x-3">
-              <button onclick="SPBUApp.openDeliveryModal()" class="text-xs bg-sky-600 hover:bg-sky-500 text-white px-3 py-1.5 rounded-lg font-bold transition">+ Jadwalkan Pengiriman</button>
-              <button onclick="SPBUApp.switchTab('deliveries')" class="text-xs text-sky-400 hover:underline font-semibold">Kelola Semua Pengiriman →</button>
-            </div>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-              <thead class="text-slate-400 border-b border-slate-800 uppercase text-[10px]">
-                <tr>
-                  <th class="py-2">Kode</th>
-                  <th class="py-2">Kendaraan & Plat</th>
-                  <th class="py-2">Sopir</th>
-                  <th class="py-2">BBM & Volume Dibawa</th>
-                  <th class="py-2">Rute (Asal → SPBU)</th>
-                  <th class="py-2 text-center">ETA</th>
-                  <th class="py-2 text-center">Status</th>
-                  <th class="py-2 text-right">Aksi</th>
-                </tr>
-              </thead>
-              <tbody id="dashboardDeliveriesTableBody" class="divide-y divide-slate-800/60 text-slate-200">
-                <!-- Populated dynamically -->
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <!-- BOTTOM 2-COLUMN BENTO ROW: PENGIRIMAN LOGISTIK TABLE (7 cols) + PETA LIVE (5 cols) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
-        <!-- CHARTS & CRITICAL STOCK TABLE -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          
-          <!-- Chart Tren Stok BBM -->
-          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-            <div class="flex items-center justify-between">
+          <!-- LEFT: Pengiriman Logistik BBM Aktif -->
+          <div class="lg:col-span-7 obsidian-card rounded-2xl p-5 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <h2 class="text-sm font-semibold text-white">Pengiriman Logistik BBM</h2>
               <div class="flex items-center space-x-2">
-                <i class="fa-solid fa-chart-line text-sky-400"></i>
-                <h3 class="font-bold text-sm text-white">Tren Stok Tangki Minyak (Simulasi Distribusi)</h3>
+                <button onclick="SPBUApp.openDeliveryModal()" class="text-[11px] font-medium text-white bg-emerald-600/90 hover:bg-emerald-500 px-2.5 py-1 rounded-lg transition">
+                  + Jadwalkan
+                </button>
+                <button onclick="SPBUApp.switchTab('deliveries')" class="text-[11px] font-medium text-zinc-300 bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] px-2.5 py-1 rounded-lg transition">
+                  Semua Pengiriman
+                </button>
               </div>
-              <span class="text-[11px] text-slate-400">Volume Total (Ribu Liter)</span>
             </div>
-            <div class="h-64">
-              <canvas id="stockTrendChart"></canvas>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="text-zinc-500 border-b border-white/[0.07] text-[11px] font-medium">
+                  <tr>
+                    <th class="py-2.5 pr-3">Kendaraan</th>
+                    <th class="py-2.5 px-3">Sopir & Tujuan</th>
+                    <th class="py-2.5 px-3">Volume Dibawa</th>
+                    <th class="py-2.5 px-3 text-center">Status</th>
+                    <th class="py-2.5 pl-3 text-right">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboardDeliveriesTableBody" class="divide-y divide-white/[0.05] text-zinc-200">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
             </div>
           </div>
 
-          <!-- Tabel SPBU Stok Menipis / Kritis (PRD Section 5.1) -->
-          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center space-x-2">
-                  <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
-                  <h3 class="font-bold text-sm text-white">Daftar Tangki Menipis / Kritis</h3>
-                </div>
-                <button onclick="SPBUApp.switchTab('fuel-stocks')" class="text-xs text-sky-400 hover:underline font-semibold">Lihat Semua Stok →</button>
-              </div>
-              <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs">
-                  <thead class="text-slate-400 border-b border-slate-800 uppercase text-[10px]">
-                    <tr>
-                      <th class="py-2">SPBU</th>
-                      <th class="py-2">Jenis BBM</th>
-                      <th class="py-2 text-right">Sisa Stok</th>
-                      <th class="py-2 text-center">Status</th>
-                      <th class="py-2 text-right">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody id="lowStockTableBody" class="divide-y divide-slate-800/60 text-slate-200">
-                    <!-- Populated dynamically -->
-                  </tbody>
-                </table>
+          <!-- RIGHT: Peta Live Pengiriman & SPBU (Dark Map) -->
+          <div class="lg:col-span-5 obsidian-card rounded-2xl p-5 flex flex-col space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <h2 class="text-sm font-semibold text-white">Aktivitas Pengiriman</h2>
+              <div class="flex items-center bg-[#0a0b0e] border border-white/[0.08] rounded-lg p-0.5 text-[10px] font-semibold">
+                <button onclick="SPBUApp.setMapFilter('ALL')" id="mapFilter-ALL" class="map-filter-btn px-2 py-1 rounded-md bg-white/[0.1] text-white">ALL</button>
+                <button onclick="SPBUApp.setMapFilter('TRUK')" id="mapFilter-TRUK" class="map-filter-btn px-2 py-1 rounded-md text-zinc-400 hover:text-white">TRUK</button>
+                <button onclick="SPBUApp.setMapFilter('SPBU')" id="mapFilter-SPBU" class="map-filter-btn px-2 py-1 rounded-md text-zinc-400 hover:text-white">SPBU</button>
               </div>
             </div>
 
-            <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-2.5 flex items-center space-x-2 text-[11px] text-amber-300">
-              <i class="fa-solid fa-truck-droplet text-amber-400 text-sm"></i>
-              <span>Pengiriman dropping darurat dari TBBM dapat diaktifkan jika stok di bawah ambang batas minimun.</span>
-            </div>
+            <div id="adminMap" class="w-full h-72 rounded-xl overflow-hidden border border-white/[0.08] z-10"></div>
           </div>
 
         </div>
 
-        <!-- RECENT CITIZEN REPORTS TABLE -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <i class="fa-solid fa-bullhorn text-rose-400"></i>
-              <h3 class="font-bold text-sm text-white">Laporan & Aduan Warga Terbaru</h3>
+        <!-- SECONDARY ROW: TANGKI KRITIS + LAPORAN WARGA -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          <div class="lg:col-span-5 obsidian-card rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="font-semibold text-sm text-white">Tangki Menipis / Kritis</h3>
+              <button onclick="SPBUApp.switchTab('fuel-stocks')" class="text-[11px] text-emerald-400 hover:underline font-medium">Lihat Semua →</button>
             </div>
-            <button onclick="SPBUApp.switchTab('reports')" class="text-xs text-sky-400 hover:underline font-semibold">Kelola Semua Laporan (10) →</button>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="text-zinc-500 border-b border-white/[0.07] text-[10px] uppercase">
+                  <tr>
+                    <th class="py-2">SPBU</th>
+                    <th class="py-2">BBM</th>
+                    <th class="py-2 text-right">Sisa</th>
+                    <th class="py-2 text-center">Status</th>
+                    <th class="py-2 text-right">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="lowStockTableBody" class="divide-y divide-white/[0.05] text-zinc-200"></tbody>
+              </table>
+            </div>
           </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-              <thead class="text-slate-400 border-b border-slate-800 uppercase text-[10px]">
-                <tr>
-                  <th class="py-2">No. Laporan</th>
-                  <th class="py-2">Warga</th>
-                  <th class="py-2">SPBU Terkait</th>
-                  <th class="py-2">Kategori</th>
-                  <th class="py-2">Keluhan</th>
-                  <th class="py-2 text-center">Status</th>
-                  <th class="py-2 text-right">Tindakan</th>
-                </tr>
-              </thead>
-              <tbody id="recentReportsTableBody" class="divide-y divide-slate-800/60 text-slate-200">
-                <!-- Populated dynamically -->
-              </tbody>
-            </table>
+
+          <div class="lg:col-span-5 obsidian-card rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="font-semibold text-sm text-white">Laporan Warga Terbaru</h3>
+              <button onclick="SPBUApp.switchTab('reports')" class="text-[11px] text-emerald-400 hover:underline font-medium">Kelola →</button>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="text-zinc-500 border-b border-white/[0.07] text-[10px] uppercase">
+                  <tr>
+                    <th class="py-2">No.</th>
+                    <th class="py-2">Warga</th>
+                    <th class="py-2">SPBU</th>
+                    <th class="py-2">Kategori</th>
+                    <th class="py-2">Keluhan</th>
+                    <th class="py-2 text-center">Status</th>
+                    <th class="py-2 text-right">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="recentReportsTableBody" class="divide-y divide-white/[0.05] text-zinc-200"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="lg:col-span-2 obsidian-card rounded-2xl p-5 flex flex-col justify-between">
+            <h3 class="font-semibold text-sm text-white">Status Aduan</h3>
+            <div class="relative h-40 flex items-center justify-center my-2">
+              <canvas id="reportChart"></canvas>
+            </div>
+            <p id="roleNoticeText" class="text-[10px] text-zinc-500 leading-relaxed">
+              Admin Logistik Pusat aktif.
+            </p>
           </div>
         </div>
 
