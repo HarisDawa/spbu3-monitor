@@ -14,6 +14,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/warga', [DashboardController::class, 'warga'])->name('warga');
 
     Route::post('/api/switch-user', [AuthController::class, 'switchUser'])->name('api.switch-user');
+    Route::post('/switch-user', [AuthController::class, 'switchUser']);
 
     Route::post('/api/users', [MonitoringController::class, 'storeUser'])->name('api.users.store');
     Route::put('/api/users/{user}', [MonitoringController::class, 'updateUser'])->name('api.users.update');

@@ -88,12 +88,12 @@
       // Update Bottom Nav state
       document.querySelectorAll('.botnav-item').forEach(el => {
         el.classList.remove('text-emerald-400');
-        el.classList.add('text-slate-400');
+        el.classList.add('text-zinc-500');
       });
       const activeNav = document.getElementById(`botnav-${tabId}`);
       if (activeNav) {
         activeNav.classList.add('text-emerald-400');
-        activeNav.classList.remove('text-slate-400');
+        activeNav.classList.remove('text-zinc-500');
       }
 
       // Map invalidation when switching to Beranda
@@ -162,7 +162,7 @@
         attributionControl: false
       }).setView([-6.285, 106.82], 12);
 
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         maxZoom: 19
       }).addTo(wargaMapInstance);
 
@@ -320,11 +320,11 @@
     setFilter(filterType) {
       currentFilter = filterType;
       document.querySelectorAll('.filter-pill').forEach(btn => {
-        btn.classList.remove('bg-emerald-600', 'text-white');
-        btn.classList.add('bg-slate-900/90', 'text-slate-300');
+        btn.classList.remove('bg-emerald-500', 'text-black', 'shadow-[0_0_15px_rgba(16,185,129,0.25)]');
+        btn.classList.add('bg-[#0e1014]/90', 'text-zinc-300');
       });
-      event.target.classList.add('bg-emerald-600', 'text-white');
-      event.target.classList.remove('bg-slate-900/90', 'text-slate-300');
+      event.target.classList.add('bg-emerald-500', 'text-black', 'shadow-[0_0_15px_rgba(16,185,129,0.25)]');
+      event.target.classList.remove('bg-[#0e1014]/90', 'text-zinc-300');
 
       this.renderMapMarkers();
       this.renderStationCards();
@@ -365,10 +365,10 @@
 
       if (list.length === 0) {
         cont.innerHTML = `
-          <div class="bg-slate-800/40 border border-slate-800 rounded-2xl p-6 text-center space-y-2">
-            <i class="fa-solid fa-gas-pump text-slate-600 text-3xl"></i>
-            <div class="text-xs font-bold text-slate-400">Tidak ada SPBU yang sesuai</div>
-            <p class="text-[11px] text-slate-500">Coba ubah kata kunci pencarian atau reset filter.</p>
+          <div class="bg-[#0e1014] border border-white/[0.08] rounded-2xl p-6 text-center space-y-2">
+            <i class="fa-solid fa-gas-pump text-zinc-600 text-3xl"></i>
+            <div class="text-xs font-bold text-zinc-400">Tidak ada SPBU yang sesuai</div>
+            <p class="text-[11px] text-zinc-500">Coba ubah kata kunci pencarian atau reset filter.</p>
           </div>
         `;
         return;
@@ -391,15 +391,15 @@
           let statusText = s.status === 'Tersedia' ? 'Ready' : (s.status === 'Menipis' ? 'Menipis' : 'Habis');
           let color = s.status === 'Tersedia' ? 'text-emerald-400' : (s.status === 'Menipis' ? 'text-amber-400' : 'text-red-400');
           return `
-            <span class="inline-flex items-center space-x-1 text-[10px] bg-slate-900 px-2 py-0.5 rounded-md border border-slate-700/60">
-              <span class="text-slate-300 font-semibold">${s.fuel_name}:</span>
+            <span class="inline-flex items-center space-x-1 text-[10px] bg-[#13161c] px-2 py-0.5 rounded-md border border-white/[0.06]">
+              <span class="text-zinc-300 font-semibold">${s.fuel_name}:</span>
               <span class="${color} font-bold">${statusText}</span>
             </span>
           `;
         }).join('');
 
         return `
-          <div class="bg-slate-800/80 border border-slate-700/80 hover:border-emerald-500/40 rounded-2xl p-3.5 space-y-2.5 transition shadow-lg">
+          <div class="bg-[#0e1014] border border-white/[0.08] hover:border-emerald-500/40 rounded-2xl p-3.5 space-y-2.5 transition shadow-lg">
             <div class="flex items-start justify-between">
               <div>
                 <div class="flex items-center space-x-2">
@@ -407,21 +407,21 @@
                   <span class="text-[10px] px-1.5 py-0.2 rounded-full font-bold ${opBadgeClass}">${st.operational_status}</span>
                 </div>
                 <h4 class="font-bold text-sm text-white mt-1">${st.name}</h4>
-                <p class="text-[11px] text-slate-400 truncate max-w-[240px]">${st.address}</p>
+                <p class="text-[11px] text-zinc-400 truncate max-w-[240px]">${st.address}</p>
               </div>
               <div class="text-right">
-                <span class="text-xs font-black text-emerald-400 block">${distance}</span>
-                <span class="text-[9px] text-slate-500 uppercase font-semibold">dari Anda</span>
+                <span class="text-xs font-black text-emerald-400 block font-mono">${distance}</span>
+                <span class="text-[9px] text-zinc-500 uppercase font-semibold">dari Anda</span>
               </div>
             </div>
 
-            <div class="bg-slate-900/90 rounded-xl p-2 flex items-center justify-between text-xs">
+            <div class="bg-[#13161c] border border-white/[0.05] rounded-xl p-2 flex items-center justify-between text-xs">
               <div class="flex items-center space-x-1.5">
-                <i class="fa-solid fa-users text-slate-400 text-[11px]"></i>
-                <span class="text-slate-300">Antrean:</span>
+                <i class="fa-solid fa-users text-zinc-400 text-[11px]"></i>
+                <span class="text-zinc-300">Antrean:</span>
                 <span class="px-2 py-0.2 rounded-full text-[10px] font-bold border ${queueBadgeClass}">${queue.queue_level}</span>
               </div>
-              <div class="font-mono text-slate-200 font-bold text-[11px]">
+              <div class="font-mono text-zinc-200 font-bold text-[11px]">
                 ~${queue.estimated_wait_minutes} menit
               </div>
             </div>
@@ -430,16 +430,16 @@
               ${fuelTags}
             </div>
 
-            <div class="pt-1 flex items-center space-x-2 border-t border-slate-700/60">
-              <button onclick="WargaApp.switchTab('detail', '${st.id}')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs transition flex items-center justify-center space-x-1.5 shadow-md shadow-emerald-600/20">
+            <div class="pt-1 flex items-center space-x-2 border-t border-white/[0.06]">
+              <button onclick="WargaApp.switchTab('detail', '${st.id}')" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-2 rounded-xl text-xs transition flex items-center justify-center space-x-1.5 shadow-md shadow-emerald-500/20">
                 <i class="fa-solid fa-circle-info"></i>
                 <span>Lihat Detail & Stok</span>
               </button>
-              <button onclick="WargaApp.switchTab('beranda'); WargaApp.selectStationOnMap('${st.id}'); wargaMapInstance.setView([${st.latitude}, ${st.longitude}], 14);" class="bg-slate-700 hover:bg-slate-600 text-emerald-400 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1" title="Tampilkan di Peta">
+              <button onclick="WargaApp.switchTab('beranda'); WargaApp.selectStationOnMap('${st.id}'); wargaMapInstance.setView([${st.latitude}, ${st.longitude}], 14);" class="bg-[#15181e] hover:bg-[#1f242d] text-emerald-400 border border-white/[0.08] px-3 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1" title="Tampilkan di Peta">
                 <i class="fa-solid fa-map-pin"></i>
                 <span>Peta</span>
               </button>
-              <a href="https://www.google.com/maps/dir/?api=1&destination=${st.latitude},${st.longitude}" target="_blank" class="bg-slate-700 hover:bg-slate-600 text-sky-400 p-2 rounded-xl text-xs transition" title="Petunjuk Arah Google Maps">
+              <a href="https://www.google.com/maps/dir/?api=1&destination=${st.latitude},${st.longitude}" target="_blank" class="bg-[#15181e] hover:bg-[#1f242d] text-zinc-300 border border-white/[0.08] p-2 rounded-xl text-xs transition" title="Petunjuk Arah Google Maps">
                 <i class="fa-solid fa-location-arrow"></i>
               </a>
             </div>
@@ -494,21 +494,21 @@
           }
 
           return `
-            <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-3 space-y-2">
+            <div class="bg-[#13161c] border border-white/[0.07] rounded-xl p-3 space-y-2">
               <div class="flex items-center justify-between">
                 <div>
                   <span class="font-extrabold text-sm text-white">${s.fuel_name}</span>
-                  <span class="text-[10px] text-slate-400 ml-1">(${s.fuel_ron})</span>
+                  <span class="text-[10px] text-zinc-400 ml-1">(${s.fuel_ron})</span>
                 </div>
                 <span class="px-2 py-0.5 rounded-full text-[10px] font-black border ${statusBadgeClass}">${s.status}</span>
               </div>
 
               <div class="flex items-center justify-between text-xs font-mono">
-                <span class="text-slate-300">${s.stock_liters.toLocaleString('id-ID')} / ${s.capacity_liters.toLocaleString('id-ID')} Liter</span>
+                <span class="text-zinc-300">${s.stock_liters.toLocaleString('id-ID')} / ${s.capacity_liters.toLocaleString('id-ID')} Liter</span>
                 <span class="text-emerald-400 font-bold">Rp ${s.fuel_price.toLocaleString('id-ID')}/L</span>
               </div>
 
-              <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden">
+              <div class="w-full h-2 bg-[#0a0c10] border border-white/[0.05] rounded-full overflow-hidden">
                 <div class="${barColor} h-full rounded-full transition-all duration-300" style="width: ${Math.min(s.percentage, 100)}%"></div>
               </div>
             </div>
@@ -600,11 +600,11 @@
     filterMyReports(status) {
       myReportsFilterStatus = status;
       document.querySelectorAll('.my-rep-filter').forEach(btn => {
-        btn.classList.remove('bg-emerald-600', 'text-white');
-        btn.classList.add('bg-slate-800', 'text-slate-300');
+        btn.classList.remove('bg-emerald-500', 'text-black');
+        btn.classList.add('bg-[#13161c]', 'text-zinc-300');
       });
-      event.target.classList.add('bg-emerald-600', 'text-white');
-      event.target.classList.remove('bg-slate-800', 'text-slate-300');
+      event.target.classList.add('bg-emerald-500', 'text-black');
+      event.target.classList.remove('bg-[#13161c]', 'text-zinc-300');
 
       this.renderMyReports(status);
     },
@@ -622,10 +622,10 @@
 
       if (reports.length === 0) {
         cont.innerHTML = `
-          <div class="bg-slate-800/40 border border-slate-800 rounded-2xl p-6 text-center space-y-2">
-            <i class="fa-solid fa-clipboard-check text-slate-600 text-3xl"></i>
-            <div class="text-xs font-bold text-slate-400">Belum ada riwayat laporan</div>
-            <p class="text-[11px] text-slate-500">Laporan yang Anda kirimkan akan terpantau status penanganannya di sini.</p>
+          <div class="bg-[#0e1014] border border-white/[0.08] rounded-2xl p-6 text-center space-y-2">
+            <i class="fa-solid fa-clipboard-check text-zinc-600 text-3xl"></i>
+            <div class="text-xs font-bold text-zinc-400">Belum ada riwayat laporan</div>
+            <p class="text-[11px] text-zinc-500">Laporan yang Anda kirimkan akan terpantau status penanganannya di sini.</p>
           </div>
         `;
         return;
@@ -647,8 +647,8 @@
               const isCurrent = i === currentStepIndex;
               return `
                 <div class="space-y-1">
-                  <div class="h-1.5 rounded-full ${isPastOrCurrent ? 'bg-emerald-500' : 'bg-slate-700'}"></div>
-                  <span class="text-[9px] block ${isCurrent ? 'text-emerald-400 font-extrabold' : (isPastOrCurrent ? 'text-slate-300' : 'text-slate-500')}">
+                  <div class="h-1.5 rounded-full ${isPastOrCurrent ? 'bg-emerald-400' : 'bg-[#1a1e26]'}"></div>
+                  <span class="text-[9px] block ${isCurrent ? 'text-emerald-400 font-extrabold' : (isPastOrCurrent ? 'text-zinc-300' : 'text-zinc-600')}">
                     ${st}
                   </span>
                 </div>
@@ -658,7 +658,7 @@
         `;
 
         return `
-          <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 space-y-3 shadow-lg">
+          <div class="bg-[#0e1014] border border-white/[0.08] rounded-2xl p-4 space-y-3 shadow-lg">
             <div class="flex items-center justify-between">
               <span class="text-xs font-mono font-bold text-emerald-400">${r.report_code}</span>
               <span class="px-2 py-0.5 rounded-full text-[10px] font-black ${this.getReportStatusBadge(r.status)}">${r.status}</span>
@@ -666,14 +666,14 @@
 
             <div>
               <h4 class="font-bold text-sm text-white">${r.station_name}</h4>
-              <span class="text-[10px] bg-slate-900 text-slate-300 px-2 py-0.5 rounded font-semibold inline-block mt-1">${r.category}</span>
+              <span class="text-[10px] bg-[#13161c] text-zinc-300 px-2 py-0.5 rounded font-semibold inline-block mt-1 border border-white/[0.06]">${r.category}</span>
             </div>
 
-            <p class="text-xs text-slate-300 bg-slate-900/60 p-2.5 rounded-xl border border-slate-800 leading-relaxed">${r.description}</p>
+            <p class="text-xs text-zinc-300 bg-[#13161c] p-2.5 rounded-xl border border-white/[0.06] leading-relaxed">${r.description}</p>
 
             ${r.photo_url ? `
               <div>
-                <img src="${r.photo_url}" alt="Foto Bukti" class="w-full h-32 object-cover rounded-xl border border-slate-700">
+                <img src="${r.photo_url}" alt="Foto Bukti" class="w-full h-32 object-cover rounded-xl border border-white/[0.08]">
               </div>
             ` : ''}
 
@@ -685,10 +685,10 @@
                 <p class="text-[11px]">${r.admin_note}</p>
               </div>
             ` : `
-              <div class="text-[10px] text-slate-500 italic">Menunggu respon verifikasi dari pos pemantau...</div>
+              <div class="text-[10px] text-zinc-500 italic">Menunggu respon verifikasi dari pos pemantau...</div>
             `}
 
-            <div class="text-[10px] text-slate-500 text-right pt-1 border-t border-slate-700/60">
+            <div class="text-[10px] text-zinc-500 text-right pt-1 border-t border-white/[0.06]">
               Dikirim: ${r.created_at}
             </div>
           </div>
@@ -702,8 +702,8 @@
         case 'Diverifikasi': return 'bg-sky-500/20 text-sky-400 border border-sky-500/30';
         case 'Ditindaklanjuti': return 'bg-amber-500/20 text-amber-300 border border-amber-500/30';
         case 'Selesai': return 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
-        case 'Ditolak': return 'bg-slate-700 text-slate-300';
-        default: return 'bg-slate-800 text-slate-400';
+        case 'Ditolak': return 'bg-[#181b22] text-zinc-400 border border-white/[0.08]';
+        default: return 'bg-[#181b22] text-zinc-400';
       }
     },
 
@@ -749,15 +749,15 @@
       if (!cont) return;
 
       const toast = document.createElement('div');
-      let colors = 'bg-slate-900 border-emerald-500 text-emerald-300';
-      let icon = 'fa-circle-info';
+      let colors = 'bg-[#0e1014] border-white/[0.12] text-zinc-200';
+      let icon = 'fa-circle-info text-zinc-400';
 
       if (type === 'success') {
-        colors = 'bg-slate-900 border-emerald-500 text-emerald-300';
-        icon = 'fa-circle-check';
+        colors = 'bg-[#0e1014] border-emerald-500/40 text-emerald-300';
+        icon = 'fa-circle-check text-emerald-400';
       } else if (type === 'error') {
-        colors = 'bg-slate-900 border-rose-500 text-rose-300';
-        icon = 'fa-circle-exclamation';
+        colors = 'bg-[#0e1014] border-rose-500/40 text-rose-300';
+        icon = 'fa-circle-exclamation text-rose-400';
       }
 
       toast.className = `border pointer-events-auto p-3 rounded-2xl shadow-2xl flex items-center space-x-2.5 text-xs font-semibold transition ${colors}`;

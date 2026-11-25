@@ -31,9 +31,10 @@
     }
   </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-family: 'Inter', sans-serif;
+      background-color: #08090b;
       -webkit-tap-highlight-color: transparent;
     }
     .custom-scrollbar::-webkit-scrollbar {
@@ -41,60 +42,63 @@
       height: 4px;
     }
     .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #334155;
+      background: #232730;
       border-radius: 4px;
     }
     .leaflet-popup-content-wrapper {
-      background: #0f172a;
+      background: #111317;
       color: #f1f5f9;
       border-radius: 0.75rem;
-      border: 1px solid #334155;
+      border: 1px solid rgba(255, 255, 255, 0.12);
     }
     .leaflet-popup-tip {
-      background: #0f172a;
+      background: #111317;
+    }
+    .leaflet-container {
+      background: #0b0d11 !important;
     }
     /* Mobile frame preview mode */
     .mobile-frame {
       max-width: 440px;
       margin: 20px auto;
       border-radius: 40px;
-      border: 12px solid #1e293b;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      border: 12px solid #181a20;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85);
       min-height: 840px;
       position: relative;
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-white">
+<body class="bg-[#08090b] text-zinc-100 min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-black">
 
   <!-- TOP BAR DESKTOP TOGGLE (Frame Mode vs Fullscreen) -->
-  <div class="bg-slate-900 border-b border-slate-800 px-4 py-2 text-xs flex items-center justify-between z-50">
+  <div class="bg-[#0a0b0e] border-b border-white/[0.07] px-4 py-2 text-xs flex items-center justify-between z-50">
     <div class="flex items-center space-x-2">
       <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-      <span class="font-bold text-white">Portal Warga (Peta Interaktif Real-time)</span>
-      <span class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded font-semibold hidden sm:inline">Data Demo / Simulasi</span>
+      <span class="font-semibold text-white">Portal Warga</span>
+      <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-medium hidden sm:inline">Live Demo</span>
     </div>
-    <div class="flex items-center space-x-3">
+    <div class="flex items-center space-x-2.5">
       <!-- Frame View Toggle Button -->
-      <button id="toggleFrameBtn" onclick="WargaApp.toggleFrameMode()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition">
+      <button id="toggleFrameBtn" onclick="WargaApp.toggleFrameMode()" class="bg-[#121418] hover:bg-white/[0.08] text-zinc-200 border border-white/[0.08] px-2.5 py-1 rounded-lg text-xs font-medium flex items-center space-x-1.5 transition">
         <i class="fa-solid fa-mobile-screen"></i>
         <span id="frameBtnText">Mode Layar Penuh</span>
       </button>
       <!-- Link back to Admin Dashboard -->
-      <a href="{{ route('dashboard') }}" class="bg-sky-600 hover:bg-sky-500 text-white px-2.5 py-1 rounded-lg text-xs font-bold flex items-center space-x-1 transition shadow-md shadow-sky-600/20">
-        <i class="fa-solid fa-gauge-high"></i>
+      <a href="{{ route('dashboard') }}" class="bg-[#15181e] hover:bg-[#1c2028] border border-white/[0.1] text-white px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition">
+        <i class="fa-solid fa-table-columns text-emerald-400"></i>
         <span class="hidden sm:inline">Dashboard Admin</span>
       </a>
     </div>
   </div>
 
   <!-- WRAPPER FOR MOBILE FRAME OR FULLSCREEN -->
-  <div id="appContainer" class="flex-1 flex flex-col w-full max-w-md mx-auto bg-slate-900 shadow-2xl relative overflow-hidden transition-all duration-300">
+  <div id="appContainer" class="flex-1 flex flex-col w-full max-w-md mx-auto bg-[#0c0e12] border-x border-white/[0.06] shadow-2xl relative overflow-hidden transition-all duration-300">
 
     <!-- MOBILE STATUS BAR SIMULATION -->
-    <div class="bg-slate-950 px-6 pt-2.5 pb-1 flex justify-between items-center text-[11px] font-semibold text-slate-400 select-none">
+    <div class="bg-[#08090b] px-6 pt-2.5 pb-1 flex justify-between items-center text-[11px] font-semibold text-zinc-400 select-none">
       <span id="mobileClock">09:41</span>
-      <div class="flex items-center space-x-1.5 text-xs text-slate-400">
+      <div class="flex items-center space-x-1.5 text-xs text-zinc-400">
         <i class="fa-solid fa-signal text-[10px]"></i>
         <i class="fa-solid fa-wifi text-[10px]"></i>
         <i class="fa-solid fa-battery-full text-emerald-400"></i>
@@ -102,29 +106,34 @@
     </div>
 
     <!-- MOBILE HEADER APP -->
-    <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-2.5 sticky top-0 z-30 flex items-center justify-between">
+    <header class="bg-[#0a0b0e]/95 backdrop-blur-md border-b border-white/[0.07] px-4 py-2.5 sticky top-0 z-30 flex items-center justify-between">
       <div class="flex items-center space-x-2.5">
-        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-white font-black text-sm shadow-md shadow-emerald-600/30">
-          <i class="fa-solid fa-gas-pump"></i>
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500/20 to-emerald-600/5 border border-emerald-500/30 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+          <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 22V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v17"/>
+            <path d="M2 22h14"/>
+            <rect x="6" y="7" width="6" height="4" rx="1"/>
+            <path d="M15 9h2a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2 2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L19 5"/>
+          </svg>
         </div>
         <div>
           <div class="flex items-center space-x-1.5">
-            <span class="font-extrabold text-white text-sm tracking-tight">SPBU<span class="text-emerald-400">Warga</span></span>
-            <span class="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded font-bold">Peta Monitoring</span>
+            <span class="font-bold text-white text-sm tracking-tight">spbu<span class="text-emerald-400">.warga</span></span>
+            <span class="text-[9px] bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 px-1.5 py-0.5 rounded font-semibold">Live</span>
           </div>
-          <div class="flex items-center space-x-1 text-[10px] text-slate-400">
+          <div class="flex items-center space-x-1 text-[10px] text-zinc-500">
             <i class="fa-solid fa-location-dot text-emerald-400"></i>
             <span id="userLocationText">DKI Jakarta & Sekitarnya</span>
           </div>
         </div>
       </div>
-      
+
       <!-- User / Profile Quick Badge -->
-      <button onclick="WargaApp.switchTab('profil')" class="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-full border border-slate-700 transition">
-        <div class="w-5 h-5 rounded-full bg-emerald-500/30 text-emerald-400 flex items-center justify-center text-[10px] font-bold">
+      <button onclick="WargaApp.switchTab('profil')" class="flex items-center space-x-1.5 bg-[#121418] hover:bg-white/[0.08] px-2.5 py-1 rounded-full border border-white/[0.08] transition">
+        <div class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-bold">
           <i class="fa-solid fa-user"></i>
         </div>
-        <span id="topBarUserName" class="text-xs font-semibold text-slate-200">Budi</span>
+        <span id="topBarUserName" class="text-xs font-medium text-zinc-200">Budi</span>
       </button>
     </header>
 
@@ -141,28 +150,28 @@
           
           <!-- Search Bar -->
           <div class="relative pointer-events-auto shadow-2xl">
-            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-            <input type="text" id="wargaSearchInput" oninput="WargaApp.handleSearch()" placeholder="Cari SPBU terdekat, nama jalan, BBM..." class="w-full bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-2xl pl-9 pr-8 py-2.5 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition shadow-lg">
-            <button id="clearSearchBtn" onclick="WargaApp.clearSearch()" class="hidden absolute right-3 top-2.5 text-slate-400 hover:text-white text-xs">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-zinc-400 text-xs"></i>
+            <input type="text" id="wargaSearchInput" oninput="WargaApp.handleSearch()" placeholder="Cari SPBU terdekat, nama jalan, BBM..." class="w-full bg-[#0e1014]/95 backdrop-blur-md border border-white/[0.09] rounded-2xl pl-9 pr-8 py-2.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500 transition shadow-lg">
+            <button id="clearSearchBtn" onclick="WargaApp.clearSearch()" class="hidden absolute right-3 top-2.5 text-zinc-400 hover:text-white text-xs">
               <i class="fa-solid fa-circle-xmark"></i>
             </button>
           </div>
 
           <!-- Quick Filter Pills -->
           <div class="flex space-x-1.5 overflow-x-auto pb-1 custom-scrollbar text-[11px] font-semibold pointer-events-auto">
-            <button onclick="WargaApp.setFilter('semua')" class="filter-pill active whitespace-nowrap px-3 py-1.5 rounded-full bg-emerald-600 text-white shadow-md transition">
+            <button onclick="WargaApp.setFilter('semua')" class="filter-pill active whitespace-nowrap px-3 py-1.5 rounded-full bg-emerald-500 text-black font-semibold shadow-[0_0_15px_rgba(16,185,129,0.25)] transition">
               Semua SPBU
             </button>
-            <button onclick="WargaApp.setFilter('pertalite')" class="filter-pill whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-900/90 backdrop-blur-md text-slate-300 hover:bg-slate-800 border border-slate-700 shadow-md transition">
+            <button onclick="WargaApp.setFilter('pertalite')" class="filter-pill whitespace-nowrap px-3 py-1.5 rounded-full bg-[#0e1014]/90 backdrop-blur-md text-zinc-300 hover:bg-[#181b22] border border-white/[0.08] shadow-md transition">
               Pertalite Ready
             </button>
-            <button onclick="WargaApp.setFilter('pertamax')" class="filter-pill whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-900/90 backdrop-blur-md text-slate-300 hover:bg-slate-800 border border-slate-700 shadow-md transition">
+            <button onclick="WargaApp.setFilter('pertamax')" class="filter-pill whitespace-nowrap px-3 py-1.5 rounded-full bg-[#0e1014]/90 backdrop-blur-md text-zinc-300 hover:bg-[#181b22] border border-white/[0.08] shadow-md transition">
               Pertamax Ready
             </button>
-            <button onclick="WargaApp.setFilter('lancar')" class="filter-pill whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-900/90 backdrop-blur-md text-slate-300 hover:bg-slate-800 border border-slate-700 shadow-md transition">
+            <button onclick="WargaApp.setFilter('lancar')" class="filter-pill whitespace-nowrap px-3 py-1.5 rounded-full bg-[#0e1014]/90 backdrop-blur-md text-zinc-300 hover:bg-[#181b22] border border-white/[0.08] shadow-md transition">
               Antrean Lancar (&lt;10 mnt)
             </button>
-            <button onclick="WargaApp.setFilter('24jam')" class="filter-pill whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-900/90 backdrop-blur-md text-slate-300 hover:bg-slate-800 border border-slate-700 shadow-md transition">
+            <button onclick="WargaApp.setFilter('24jam')" class="filter-pill whitespace-nowrap px-3 py-1.5 rounded-full bg-[#0e1014]/90 backdrop-blur-md text-zinc-300 hover:bg-[#181b22] border border-white/[0.08] shadow-md transition">
               Buka 24 Jam
             </button>
           </div>
@@ -171,10 +180,10 @@
 
         <!-- FLOATING ACTION BUTTONS (Right Side: GPS & Legend) -->
         <div class="absolute right-3 top-28 z-20 flex flex-col space-y-2 pointer-events-auto">
-          <button onclick="WargaApp.locateUser()" class="w-9 h-9 rounded-xl bg-slate-900/90 backdrop-blur-md border border-slate-700 text-emerald-400 hover:text-white hover:bg-emerald-600 flex items-center justify-center shadow-lg transition" title="Pusatkan ke Lokasi Saya">
+          <button onclick="WargaApp.locateUser()" class="w-9 h-9 rounded-xl bg-[#0e1014]/90 backdrop-blur-md border border-white/[0.09] text-emerald-400 hover:text-white hover:bg-[#1a1d24] flex items-center justify-center shadow-lg transition" title="Pusatkan ke Lokasi Saya">
             <i class="fa-solid fa-crosshairs text-sm"></i>
           </button>
-          <button onclick="WargaApp.switchTab('daftar')" class="w-9 h-9 rounded-xl bg-slate-900/90 backdrop-blur-md border border-slate-700 text-sky-400 hover:text-white hover:bg-sky-600 flex items-center justify-center shadow-lg transition" title="Tampilkan Daftar Kartu">
+          <button onclick="WargaApp.switchTab('daftar')" class="w-9 h-9 rounded-xl bg-[#0e1014]/90 backdrop-blur-md border border-white/[0.09] text-zinc-300 hover:text-white hover:bg-[#1a1d24] flex items-center justify-center shadow-lg transition" title="Tampilkan Daftar Kartu">
             <i class="fa-solid fa-list-ul text-sm"></i>
           </button>
         </div>
@@ -183,7 +192,7 @@
         <div id="wargaMap" class="w-full flex-1 z-10 min-h-[400px]"></div>
 
         <!-- BOTTOM FLOATING SPBU CARD ON MAP (SLIDE UP CARD) -->
-        <div id="mapBottomCard" class="absolute bottom-18 inset-x-3 z-20 bg-slate-900/95 backdrop-blur-md border border-slate-700 rounded-2xl p-3.5 shadow-2xl space-y-2.5 transition-all">
+        <div id="mapBottomCard" class="absolute bottom-18 inset-x-3 z-20 bg-[#0e1014]/95 backdrop-blur-md border border-white/[0.09] rounded-2xl p-3.5 shadow-2xl space-y-2.5 transition-all">
           <div class="flex items-start justify-between">
             <div>
               <div class="flex items-center space-x-2">
@@ -191,19 +200,19 @@
                 <span id="mapCardStatus" class="text-[10px] px-2 py-0.2 rounded-full font-bold bg-emerald-500/20 text-emerald-400">Buka</span>
               </div>
               <h4 id="mapCardName" class="font-bold text-sm text-white mt-1">SPBU Pertamina Cilandak</h4>
-              <p id="mapCardAddress" class="text-[11px] text-slate-400 truncate max-w-[220px]">Jl. TB Simatupang No. 12</p>
+              <p id="mapCardAddress" class="text-[11px] text-zinc-400 truncate max-w-[220px]">Jl. TB Simatupang No. 12</p>
             </div>
             <div class="text-right">
-              <span id="mapCardDistance" class="text-xs font-black text-emerald-400 block">0.8 km</span>
-              <span class="text-[9px] text-slate-500 uppercase font-semibold">dari Anda</span>
+              <span id="mapCardDistance" class="text-xs font-black text-emerald-400 block font-mono">0.8 km</span>
+              <span class="text-[9px] text-zinc-500 uppercase font-semibold">dari Anda</span>
             </div>
           </div>
 
           <!-- Queue and Fuel summary -->
-          <div class="bg-slate-950/80 rounded-xl p-2 flex items-center justify-between text-xs">
+          <div class="bg-[#13161c] border border-white/[0.05] rounded-xl p-2 flex items-center justify-between text-xs">
             <div class="flex items-center space-x-1.5">
-              <i class="fa-solid fa-users text-slate-400 text-[11px]"></i>
-              <span class="text-slate-300">Antrean:</span>
+              <i class="fa-solid fa-users text-zinc-400 text-[11px]"></i>
+              <span class="text-zinc-300">Antrean:</span>
               <span id="mapCardQueue" class="px-2 py-0.2 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Lancar (~5 mnt)</span>
             </div>
             <div id="mapCardFuelTags" class="flex space-x-1">
@@ -212,12 +221,12 @@
           </div>
 
           <!-- Card Action Buttons -->
-          <div class="pt-1 flex items-center space-x-2 border-t border-slate-800">
-            <button id="mapCardDetailBtn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs transition flex items-center justify-center space-x-1.5 shadow-md shadow-emerald-600/20">
+          <div class="pt-1 flex items-center space-x-2 border-t border-white/[0.06]">
+            <button id="mapCardDetailBtn" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-2 rounded-xl text-xs transition flex items-center justify-center space-x-1.5 shadow-md shadow-emerald-500/20">
               <i class="fa-solid fa-circle-info"></i>
               <span>Lihat Detail Stok & Jam Buka</span>
             </button>
-            <a id="mapCardRouteBtn" href="#" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-sky-400 p-2 rounded-xl text-xs transition border border-slate-700" title="Rute Google Maps">
+            <a id="mapCardRouteBtn" href="#" target="_blank" class="bg-[#15181e] hover:bg-[#1f242d] text-zinc-300 border border-white/[0.08] p-2 rounded-xl text-xs transition" title="Rute Google Maps">
               <i class="fa-solid fa-location-arrow"></i>
             </a>
           </div>
@@ -232,10 +241,10 @@
         
         <div class="flex items-center justify-between">
           <div>
-            <h2 class="text-base font-extrabold text-white">Daftar SPBU Terdekat</h2>
-            <p class="text-[11px] text-slate-400">Ringkasan kondisi antrean dan ketersediaan minyak.</p>
+            <h2 class="text-base font-extrabold text-white tracking-tight">Daftar SPBU Terdekat</h2>
+            <p class="text-[11px] text-zinc-400">Ringkasan kondisi antrean dan ketersediaan minyak.</p>
           </div>
-          <button onclick="WargaApp.switchTab('beranda')" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-2.5 py-1 rounded-xl text-xs font-bold transition flex items-center space-x-1">
+          <button onclick="WargaApp.switchTab('beranda')" class="bg-[#121418] hover:bg-white/[0.08] text-emerald-400 border border-white/[0.08] px-2.5 py-1 rounded-xl text-xs font-semibold transition flex items-center space-x-1">
             <i class="fa-solid fa-map"></i>
             <span>Mode Peta</span>
           </button>
@@ -243,17 +252,17 @@
 
         <!-- Quick Summary Stats -->
         <div class="grid grid-cols-3 gap-2">
-          <div class="bg-slate-800/50 border border-slate-800 p-2.5 rounded-xl text-center">
-            <div id="statWargaBuka" class="text-base font-black text-emerald-400">7</div>
-            <div class="text-[9px] uppercase font-bold text-slate-400">SPBU Buka</div>
+          <div class="bg-[#0e1014] border border-white/[0.08] p-2.5 rounded-xl text-center">
+            <div id="statWargaBuka" class="text-base font-black text-emerald-400 font-mono">7</div>
+            <div class="text-[9px] uppercase font-bold text-zinc-400">SPBU Buka</div>
           </div>
-          <div class="bg-slate-800/50 border border-slate-800 p-2.5 rounded-xl text-center">
-            <div id="statWargaLancar" class="text-base font-black text-sky-400">5</div>
-            <div class="text-[9px] uppercase font-bold text-slate-400">Antrean Lancar</div>
+          <div class="bg-[#0e1014] border border-white/[0.08] p-2.5 rounded-xl text-center">
+            <div id="statWargaLancar" class="text-base font-black text-emerald-400 font-mono">5</div>
+            <div class="text-[9px] uppercase font-bold text-zinc-400">Antrean Lancar</div>
           </div>
-          <div class="bg-slate-800/50 border border-slate-800 p-2.5 rounded-xl text-center">
-            <div id="statWargaAman" class="text-base font-black text-amber-400">6</div>
-            <div class="text-[9px] uppercase font-bold text-slate-400">Stok Normal</div>
+          <div class="bg-[#0e1014] border border-white/[0.08] p-2.5 rounded-xl text-center">
+            <div id="statWargaAman" class="text-base font-black text-emerald-400 font-mono">6</div>
+            <div class="text-[9px] uppercase font-bold text-zinc-400">Stok Normal</div>
           </div>
         </div>
 
@@ -270,40 +279,40 @@
       <div id="view-detail" class="warga-view hidden flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4 pb-20">
         
         <!-- Back Navigation -->
-        <button onclick="WargaApp.switchTab('beranda')" class="flex items-center space-x-2 text-xs font-bold text-emerald-400 hover:underline">
+        <button onclick="WargaApp.switchTab('beranda')" class="flex items-center space-x-2 text-xs font-semibold text-emerald-400 hover:underline">
           <i class="fa-solid fa-arrow-left"></i>
           <span>Kembali ke Peta SPBU</span>
         </button>
 
         <!-- Station Header Card -->
-        <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 space-y-3 shadow-xl">
+        <div class="bg-[#0e1014] border border-white/[0.08] rounded-2xl p-4 space-y-3 shadow-xl">
           <div class="flex items-center justify-between">
             <span id="detailStationCode" class="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">34.124.01</span>
             <span id="detailOperationalStatus" class="text-xs px-2.5 py-0.5 rounded-full font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">BUKA</span>
           </div>
           <h2 id="detailStationName" class="text-lg font-extrabold text-white">SPBU Pertamina Cilandak</h2>
-          <p id="detailStationAddress" class="text-xs text-slate-300 leading-relaxed">Jl. TB Simatupang No. 12, Cilandak Barat, Jakarta Selatan</p>
+          <p id="detailStationAddress" class="text-xs text-zinc-300 leading-relaxed">Jl. TB Simatupang No. 12, Cilandak Barat, Jakarta Selatan</p>
           
-          <div class="grid grid-cols-2 gap-2 pt-2 text-[11px] border-t border-slate-700/60 text-slate-400">
+          <div class="grid grid-cols-2 gap-2 pt-2 text-[11px] border-t border-white/[0.06] text-zinc-400">
             <div><i class="fa-solid fa-clock text-emerald-400 mr-1.5"></i><span id="detailStationHours">24 Jam</span></div>
             <div><i class="fa-solid fa-phone text-emerald-400 mr-1.5"></i><span id="detailStationPhone">(021) 7590-1234</span></div>
           </div>
-          <div class="text-[11px] text-slate-400">
-            <i class="fa-solid fa-wrench text-sky-400 mr-1.5"></i><span id="detailStationFacility">Toilet, Musholla, ATM, Nitrogen</span>
+          <div class="text-[11px] text-zinc-400">
+            <i class="fa-solid fa-wrench text-emerald-400 mr-1.5"></i><span id="detailStationFacility">Toilet, Musholla, ATM, Nitrogen</span>
           </div>
         </div>
 
         <!-- Real-time Queue Card -->
-        <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-4 space-y-2">
+        <div class="bg-[#0e1014] border border-white/[0.08] rounded-2xl p-4 space-y-2">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Kondisi Antrean Kendaraan</span>
-            <span id="detailQueueLevelBadge" class="text-xs font-black px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">Lancar</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-zinc-400">Kondisi Antrean Kendaraan</span>
+            <span id="detailQueueLevelBadge" class="text-xs font-black px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Lancar</span>
           </div>
           <div class="flex items-baseline space-x-2">
-            <span id="detailQueueMinutes" class="text-3xl font-black text-white">~5</span>
-            <span class="text-xs text-slate-400">menit estimasi waktu tunggu</span>
+            <span id="detailQueueMinutes" class="text-3xl font-black text-white font-mono">~5</span>
+            <span class="text-xs text-zinc-400">menit estimasi waktu tunggu</span>
           </div>
-          <div class="text-[10px] text-slate-500 flex justify-between pt-1">
+          <div class="text-[10px] text-zinc-500 flex justify-between pt-1 border-t border-white/[0.05]">
             <span id="detailQueueSource">Sumber: Sensor ATG</span>
             <span id="detailQueueUpdated">Diperbarui: 2026-11-23 21:30</span>
           </div>
@@ -312,8 +321,8 @@
         <!-- Real-time Fuel Stock Breakdown -->
         <div class="space-y-2">
           <div class="flex items-center justify-between">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Ketersediaan Stok BBM</h3>
-            <span class="text-[10px] text-slate-500">Kapasitas Tangki Pendam</span>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-400">Ketersediaan Stok BBM</h3>
+            <span class="text-[10px] text-zinc-500">Kapasitas Tangki Pendam</span>
           </div>
           <div id="detailFuelStocksList" class="space-y-2">
             <!-- Dynamically populated -->
@@ -322,12 +331,12 @@
 
         <!-- Action Buttons: Google Maps Route + Buat Laporan -->
         <div class="pt-2 space-y-2">
-          <a id="detailRouteButton" href="#" target="_blank" class="w-full bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 shadow-lg transition">
+          <a id="detailRouteButton" href="#" target="_blank" class="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 shadow-lg shadow-emerald-500/20 transition">
             <i class="fa-solid fa-location-arrow"></i>
             <span>Buka Arah Rute di Google Maps</span>
           </a>
-          <button id="detailReportButton" onclick="WargaApp.prefillReport()" class="w-full bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 transition">
-            <i class="fa-solid fa-bullhorn"></i>
+          <button id="detailReportButton" onclick="WargaApp.prefillReport()" class="w-full bg-[#121418] hover:bg-[#181b22] text-zinc-200 border border-white/[0.08] font-semibold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 transition">
+            <i class="fa-solid fa-bullhorn text-amber-400"></i>
             <span>Laporkan Antrean / Kendala di SPBU Ini</span>
           </button>
         </div>
@@ -341,23 +350,23 @@
         
         <div>
           <h2 class="text-lg font-extrabold text-white">Buat Laporan Warga</h2>
-          <p class="text-xs text-slate-400">Sampaikan keluhan antrean, BBM kosong, atau fasilitas bermasalah untuk ditindaklanjuti pengelola SPBU.</p>
+          <p class="text-xs text-zinc-400">Sampaikan keluhan antrean, BBM kosong, atau fasilitas bermasalah untuk ditindaklanjuti pengelola SPBU.</p>
         </div>
 
-        <form id="wargaReportForm" onsubmit="WargaApp.handleReportSubmit(event)" class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 space-y-3.5 text-xs shadow-xl">
+        <form id="wargaReportForm" onsubmit="WargaApp.handleReportSubmit(event)" class="bg-[#0e1014] border border-white/[0.08] rounded-2xl p-4 space-y-3.5 text-xs shadow-xl">
           
           <!-- Pilih SPBU -->
           <div>
-            <label class="block font-semibold text-slate-300 mb-1">Pilih SPBU Terkait *</label>
-            <select id="reportStationSelect" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white font-semibold focus:outline-none focus:border-emerald-500">
+            <label class="block font-semibold text-zinc-300 mb-1">Pilih SPBU Terkait *</label>
+            <select id="reportStationSelect" required class="w-full bg-[#13161c] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white font-semibold focus:outline-none focus:border-emerald-500">
               <!-- Dynamically populated -->
             </select>
           </div>
 
           <!-- Kategori Laporan -->
           <div>
-            <label class="block font-semibold text-slate-300 mb-1">Kategori Masalah *</label>
-            <select id="reportCategorySelect" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-white font-semibold focus:outline-none focus:border-emerald-500">
+            <label class="block font-semibold text-zinc-300 mb-1">Kategori Masalah *</label>
+            <select id="reportCategorySelect" required class="w-full bg-[#13161c] border border-white/[0.08] rounded-xl px-3 py-2.5 text-white font-semibold focus:outline-none focus:border-emerald-500">
               <option value="Antrean panjang">Antrean panjang</option>
               <option value="BBM habis">BBM habis</option>
               <option value="Informasi stok tidak sesuai">Informasi stok tidak sesuai</option>
@@ -369,28 +378,28 @@
 
           <!-- Deskripsi Keluhan -->
           <div>
-            <label class="block font-semibold text-slate-300 mb-1">Deskripsi Keluhan / Kejadian *</label>
-            <textarea id="reportDescriptionInput" rows="3" placeholder="Jelaskan kondisi antrean atau masalah yang Anda temui secara rinci..." required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"></textarea>
+            <label class="block font-semibold text-zinc-300 mb-1">Deskripsi Keluhan / Kejadian *</label>
+            <textarea id="reportDescriptionInput" rows="3" placeholder="Jelaskan kondisi antrean atau masalah yang Anda temui secara rinci..." required class="w-full bg-[#13161c] border border-white/[0.08] rounded-xl px-3 py-2 text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500"></textarea>
           </div>
 
           <!-- Upload Foto Bukti -->
           <div>
-            <label class="block font-semibold text-slate-300 mb-1">Unggah Foto Bukti (Opsional)</label>
+            <label class="block font-semibold text-zinc-300 mb-1">Unggah Foto Bukti (Opsional)</label>
             <div class="flex items-center space-x-2">
-              <label class="flex-1 bg-slate-900 hover:bg-slate-850 border border-dashed border-slate-600 rounded-xl p-3 text-center cursor-pointer transition">
+              <label class="flex-1 bg-[#13161c] hover:bg-[#181b22] border border-dashed border-white/[0.12] rounded-xl p-3 text-center cursor-pointer transition">
                 <i class="fa-solid fa-camera text-emerald-400 text-base mb-1 block"></i>
-                <span class="text-[11px] text-slate-300 font-medium">Ambil / Pilih Foto</span>
+                <span class="text-[11px] text-zinc-300 font-medium">Ambil / Pilih Foto</span>
                 <input type="file" id="reportPhotoInput" accept="image/*" onchange="WargaApp.handlePhotoSelect(event)" class="hidden">
               </label>
               <!-- Sample Preset Photo Button for quick test -->
-              <button type="button" onclick="WargaApp.useSamplePhoto()" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-xl px-3 py-3 text-[11px] text-slate-300 font-semibold transition">
+              <button type="button" onclick="WargaApp.useSamplePhoto()" class="bg-[#181b22] hover:bg-[#20252e] border border-white/[0.08] rounded-xl px-3 py-3 text-[11px] text-zinc-300 font-semibold transition">
                 Gunakan Contoh Foto
               </button>
             </div>
             <!-- Photo Preview Thumbnail -->
             <div id="photoPreviewContainer" class="hidden mt-2 relative">
-              <img id="photoPreviewImg" src="" alt="Pratinjau" class="w-full h-36 object-cover rounded-xl border border-slate-700">
-              <button type="button" onclick="WargaApp.removePhoto()" class="absolute top-2 right-2 bg-slate-950/80 text-red-400 w-6 h-6 rounded-full flex items-center justify-center text-xs">
+              <img id="photoPreviewImg" src="" alt="Pratinjau" class="w-full h-36 object-cover rounded-xl border border-white/[0.08]">
+              <button type="button" onclick="WargaApp.removePhoto()" class="absolute top-2 right-2 bg-black/80 text-rose-400 w-6 h-6 rounded-full flex items-center justify-center text-xs">
                 <i class="fa-solid fa-xmark"></i>
               </button>
             </div>
@@ -398,13 +407,13 @@
 
           <!-- Identitas Pelapor -->
           <div>
-            <label class="block font-semibold text-slate-300 mb-1">Nama Pelapor *</label>
-            <input type="text" id="reportUserNameInput" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-medium focus:outline-none focus:border-emerald-500">
+            <label class="block font-semibold text-zinc-300 mb-1">Nama Pelapor *</label>
+            <input type="text" id="reportUserNameInput" required class="w-full bg-[#13161c] border border-white/[0.08] rounded-xl px-3 py-2 text-white font-medium focus:outline-none focus:border-emerald-500">
           </div>
 
           <!-- Submit Button -->
           <div class="pt-2">
-            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 shadow-lg shadow-emerald-600/30 transition">
+            <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center space-x-2 shadow-lg shadow-emerald-500/20 transition">
               <i class="fa-solid fa-paper-plane"></i>
               <span>Kirim Laporan Pengaduan</span>
             </button>
@@ -421,16 +430,16 @@
         
         <div>
           <h2 class="text-lg font-extrabold text-white">Status Laporan Saya</h2>
-          <p class="text-xs text-slate-400">Pantau proses tindak lanjut laporan yang telah Anda kirimkan ke pihak SPBU.</p>
+          <p class="text-xs text-zinc-400">Pantau proses tindak lanjut laporan yang telah Anda kirimkan ke pihak SPBU.</p>
         </div>
 
         <!-- Filter Status Laporan Saya -->
         <div class="flex space-x-2 text-[11px] font-semibold overflow-x-auto pb-1 custom-scrollbar">
-          <button onclick="WargaApp.filterMyReports('Semua')" class="my-rep-filter active px-3 py-1.5 rounded-full bg-emerald-600 text-white transition">Semua</button>
-          <button onclick="WargaApp.filterMyReports('Menunggu')" class="my-rep-filter px-3 py-1.5 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition">Menunggu</button>
-          <button onclick="WargaApp.filterMyReports('Diverifikasi')" class="my-rep-filter px-3 py-1.5 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition">Diverifikasi</button>
-          <button onclick="WargaApp.filterMyReports('Ditindaklanjuti')" class="my-rep-filter px-3 py-1.5 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition">Ditindaklanjuti</button>
-          <button onclick="WargaApp.filterMyReports('Selesai')" class="my-rep-filter px-3 py-1.5 rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition">Selesai</button>
+          <button onclick="WargaApp.filterMyReports('Semua')" class="my-rep-filter active px-3 py-1.5 rounded-full bg-emerald-500 text-black font-semibold transition">Semua</button>
+          <button onclick="WargaApp.filterMyReports('Menunggu')" class="my-rep-filter px-3 py-1.5 rounded-full bg-[#13161c] text-zinc-300 hover:bg-[#181b22] border border-white/[0.08] transition">Menunggu</button>
+          <button onclick="WargaApp.filterMyReports('Diverifikasi')" class="my-rep-filter px-3 py-1.5 rounded-full bg-[#13161c] text-zinc-300 hover:bg-[#181b22] border border-white/[0.08] transition">Diverifikasi</button>
+          <button onclick="WargaApp.filterMyReports('Ditindaklanjuti')" class="my-rep-filter px-3 py-1.5 rounded-full bg-[#13161c] text-zinc-300 hover:bg-[#181b22] border border-white/[0.08] transition">Ditindaklanjuti</button>
+          <button onclick="WargaApp.filterMyReports('Selesai')" class="my-rep-filter px-3 py-1.5 rounded-full bg-[#13161c] text-zinc-300 hover:bg-[#181b22] border border-white/[0.08] transition">Selesai</button>
         </div>
 
         <!-- List Laporan Saya -->
@@ -446,43 +455,43 @@
       <div id="view-profil" class="warga-view hidden flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4 pb-20">
         
         <!-- Profile Card -->
-        <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 text-center space-y-2 shadow-xl">
-          <div class="w-16 h-16 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 mx-auto flex items-center justify-center text-2xl font-bold">
+        <div class="bg-[#0e1014] border border-white/[0.08] rounded-2xl p-5 text-center space-y-2 shadow-xl">
+          <div class="w-16 h-16 rounded-2xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 mx-auto flex items-center justify-center text-2xl font-bold shadow-[0_0_15px_rgba(16,185,129,0.2)]">
             <i class="fa-solid fa-user-circle"></i>
           </div>
           <h3 id="profileNameDisplay" class="text-base font-extrabold text-white">Budi Santoso</h3>
-          <p id="profileEmailDisplay" class="text-xs text-slate-400">warga@spbumonitor.test</p>
-          <span class="inline-block text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold uppercase">
+          <p id="profileEmailDisplay" class="text-xs text-zinc-400 font-mono">warga@spbumonitor.test</p>
+          <span class="inline-block text-[10px] bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
             Pengguna Warga Terverifikasi
           </span>
         </div>
 
         <!-- Edit Profile Form -->
-        <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-4 space-y-3 text-xs shadow-lg">
-          <h4 class="font-bold text-white uppercase tracking-wider text-[11px] text-slate-400">Informasi Kontak</h4>
+        <div class="bg-[#0e1014] border border-white/[0.08] rounded-2xl p-4 space-y-3 text-xs shadow-lg">
+          <h4 class="font-bold text-white uppercase tracking-wider text-[11px] text-zinc-400">Informasi Kontak</h4>
           <div>
-            <label class="block font-semibold text-slate-300 mb-1">Nama Lengkap</label>
-            <input type="text" id="profileNameInput" value="Budi Santoso" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+            <label class="block font-semibold text-zinc-300 mb-1">Nama Lengkap</label>
+            <input type="text" id="profileNameInput" value="Budi Santoso" class="w-full bg-[#13161c] border border-white/[0.08] rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
           </div>
           <div>
-            <label class="block font-semibold text-slate-300 mb-1">Email</label>
-            <input type="email" id="profileEmailInput" value="warga@spbumonitor.test" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+            <label class="block font-semibold text-zinc-300 mb-1">Email</label>
+            <input type="email" id="profileEmailInput" value="warga@spbumonitor.test" class="w-full bg-[#13161c] border border-white/[0.08] rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
           </div>
           <div>
-            <label class="block font-semibold text-slate-300 mb-1">Nomor Telepon / WhatsApp</label>
-            <input type="text" id="profilePhoneInput" value="0819-5566-7788" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+            <label class="block font-semibold text-zinc-300 mb-1">Nomor Telepon / WhatsApp</label>
+            <input type="text" id="profilePhoneInput" value="0819-5566-7788" class="w-full bg-[#13161c] border border-white/[0.08] rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
           </div>
-          <button onclick="WargaApp.saveProfile()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl transition">
+          <button onclick="WargaApp.saveProfile()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-2.5 rounded-xl transition shadow-lg shadow-emerald-500/20">
             Simpan Perubahan Profil
           </button>
         </div>
 
         <!-- Quick Switch or Logout Simulation -->
-        <div class="bg-slate-800/40 border border-slate-800 rounded-2xl p-4 space-y-2 text-xs">
-          <h4 class="font-bold text-slate-400 uppercase tracking-wider text-[11px]">Pengujian Multi-Peran</h4>
-          <p class="text-[11px] text-slate-400 leading-relaxed">Anda dapat langsung beralih ke peran Admin Logistik untuk mencoba sinkronisasi data dua arah.</p>
+        <div class="bg-[#111317] border border-white/[0.08] rounded-2xl p-4 space-y-2 text-xs">
+          <h4 class="font-bold text-zinc-400 uppercase tracking-wider text-[11px]">Pengujian Multi-Peran</h4>
+          <p class="text-[11px] text-zinc-400 leading-relaxed">Anda dapat langsung beralih ke panel Admin Logistik & Pengiriman.</p>
           <div class="flex space-x-2 pt-1">
-            <a href="{{ route('dashboard') }}" class="flex-1 text-center bg-sky-600 hover:bg-sky-500 text-white font-bold py-2 rounded-xl transition">
+            <a href="{{ route('dashboard') }}" class="flex-1 text-center bg-[#181b22] hover:bg-[#20252e] border border-white/[0.08] text-white font-bold py-2 rounded-xl transition">
               Buka Panel Admin
             </a>
           </div>
@@ -495,7 +504,7 @@
     <!-- ======================================================== -->
     <!-- BOTTOM NAVIGATION (MOBILE-FIRST 5 TABS) -->
     <!-- ======================================================== -->
-    <nav class="bg-slate-900/95 backdrop-blur-md border-t border-slate-800 py-1.5 px-3 fixed sm:absolute bottom-0 inset-x-0 z-40 flex justify-around items-center">
+    <nav class="bg-[#0a0b0e]/95 backdrop-blur-md border-t border-white/[0.08] py-1.5 px-3 fixed sm:absolute bottom-0 inset-x-0 z-40 flex justify-around items-center">
       
       <!-- Beranda (Peta) -->
       <button onclick="WargaApp.switchTab('beranda')" id="botnav-beranda" class="botnav-item flex flex-col items-center py-1 px-2.5 text-emerald-400 transition">
@@ -504,21 +513,21 @@
       </button>
 
       <!-- Daftar SPBU (List) -->
-      <button onclick="WargaApp.switchTab('daftar')" id="botnav-daftar" class="botnav-item flex flex-col items-center py-1 px-2.5 text-slate-400 hover:text-slate-200 transition">
+      <button onclick="WargaApp.switchTab('daftar')" id="botnav-daftar" class="botnav-item flex flex-col items-center py-1 px-2.5 text-zinc-500 hover:text-zinc-300 transition">
         <i class="fa-solid fa-list-ul text-base"></i>
         <span class="text-[10px] font-semibold mt-0.5">Daftar</span>
       </button>
 
       <!-- Buat Laporan (Center CTA) -->
-      <button onclick="WargaApp.switchTab('laporan')" id="botnav-laporan" class="botnav-item flex flex-col items-center py-1 px-2.5 text-slate-400 hover:text-slate-200 transition">
-        <div class="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center text-sm shadow-md shadow-emerald-600/40 -mt-2">
-          <i class="fa-solid fa-plus"></i>
+      <button onclick="WargaApp.switchTab('laporan')" id="botnav-laporan" class="botnav-item flex flex-col items-center py-1 px-2.5 text-zinc-500 hover:text-zinc-300 transition">
+        <div class="w-8 h-8 rounded-full bg-emerald-500 text-black flex items-center justify-center text-sm shadow-md shadow-emerald-500/40 -mt-2">
+          <i class="fa-solid fa-plus font-black"></i>
         </div>
         <span class="text-[10px] font-semibold mt-0.5">Lapor</span>
       </button>
 
       <!-- Aktivitas -->
-      <button onclick="WargaApp.switchTab('aktivitas')" id="botnav-aktivitas" class="botnav-item flex flex-col items-center py-1 px-2.5 text-slate-400 hover:text-slate-200 transition">
+      <button onclick="WargaApp.switchTab('aktivitas')" id="botnav-aktivitas" class="botnav-item flex flex-col items-center py-1 px-2.5 text-zinc-500 hover:text-zinc-300 transition">
         <div class="relative">
           <i class="fa-solid fa-clock-rotate-left text-base"></i>
           <span id="botnavPendingBadge" class="hidden absolute -top-1 -right-2 w-2 h-2 rounded-full bg-rose-500"></span>
@@ -527,7 +536,7 @@
       </button>
 
       <!-- Profil -->
-      <button onclick="WargaApp.switchTab('profil')" id="botnav-profil" class="botnav-item flex flex-col items-center py-1 px-2.5 text-slate-400 hover:text-slate-200 transition">
+      <button onclick="WargaApp.switchTab('profil')" id="botnav-profil" class="botnav-item flex flex-col items-center py-1 px-2.5 text-zinc-500 hover:text-zinc-300 transition">
         <i class="fa-solid fa-user text-base"></i>
         <span class="text-[10px] font-semibold mt-0.5">Profil</span>
       </button>
