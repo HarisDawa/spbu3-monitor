@@ -31,30 +31,30 @@
       </div>
     @endif
 
-    <form id="loginForm" method="POST" action="{{ route('login.store') }}" class="rounded-2xl border border-slate-800 bg-slate-900 p-6 space-y-5">
+    <form id="loginForm" method="POST" action="{{ route('login.store') }}" class="rounded-2xl border border-white/[0.08] bg-[#0e1014] p-6 space-y-5 shadow-2xl">
       @csrf
       <div>
-        <label for="email" class="block text-xs font-semibold text-slate-400 mb-2">Email</label>
+        <label for="email" class="block text-xs font-semibold text-zinc-400 mb-2">Email</label>
         <input id="email" name="email" type="email" required autofocus value="{{ old('email') }}"
-          class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none focus:border-sky-500">
+          class="w-full rounded-xl border border-white/[0.08] bg-[#13161c] px-3.5 py-2.5 text-sm text-white outline-none focus:border-emerald-500 transition">
       </div>
       <div>
-        <label for="password" class="block text-xs font-semibold text-slate-400 mb-2">Password</label>
+        <label for="password" class="block text-xs font-semibold text-zinc-400 mb-2">Password</label>
         <input id="password" name="password" type="password" required
-          class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none focus:border-sky-500">
+          class="w-full rounded-xl border border-white/[0.08] bg-[#13161c] px-3.5 py-2.5 text-sm text-white outline-none focus:border-emerald-500 transition">
       </div>
-      <button type="submit" class="w-full rounded-lg bg-sky-600 hover:bg-sky-500 px-4 py-2.5 text-sm font-bold transition">
+      <button type="submit" class="w-full rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black px-4 py-2.5 text-sm font-bold shadow-lg shadow-emerald-500/20 transition">
         <i class="fa-solid fa-right-to-bracket mr-2"></i>Masuk
       </button>
     </form>
 
-    <div class="mt-6 rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
-      <p class="text-xs font-semibold text-slate-400 mb-3">Akun demo — password: <span class="text-sky-400 font-mono">password</span></p>
+    <div class="mt-6 rounded-2xl border border-white/[0.08] bg-[#0e1014]/60 p-5">
+      <p class="text-xs font-semibold text-zinc-400 mb-3">Akun demo — password: <span class="text-emerald-400 font-mono">password</span></p>
       <div class="space-y-2">
         @foreach ($demoAccounts as $account)
-          <button type="button" class="w-full flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-left hover:border-sky-600 transition demo-account" data-email="{{ $account['email'] }}">
-            <span class="text-xs font-semibold text-slate-200">{{ $account['label'] }}</span>
-            <span class="text-[10px] font-mono text-slate-500">{{ $account['role'] }}</span>
+          <button type="button" class="w-full flex items-center justify-between rounded-xl border border-white/[0.06] bg-[#13161c] px-3.5 py-2 text-left hover:border-emerald-500/40 hover:bg-[#181b22] transition demo-account" data-email="{{ $account['email'] }}">
+            <span class="text-xs font-semibold text-zinc-200">{{ $account['label'] }}</span>
+            <span class="text-[10px] font-mono text-zinc-500">{{ $account['role'] }}</span>
           </button>
         @endforeach
       </div>
