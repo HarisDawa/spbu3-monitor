@@ -8,6 +8,7 @@
   'use strict';
 
   let wargaMapInstance = null;
+  let wargaTileLayer = null;
   let wargaMarkersLayer = null;
   let currentFilter = 'semua';
   let activeDetailStationId = null;
@@ -162,12 +163,33 @@
         attributionControl: false
       }).setView([-6.285, 106.82], 12);
 
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19
-      }).addTo(wargaMapInstance);
+      this.setupTileLayer();
 
       wargaMarkersLayer = L.layerGroup().addTo(wargaMapInstance);
       this.renderMapMarkers();
+    },
+
+    setupTileLayer() {
+      if (wargaTileLayer && wargaMapInstance) {
+        wargaMapInstance.removeLayer(wargaTileLayer);
+      }
+      const token = (localStorage.getItem('spbu_mapbox_token') || (window.SPBU_BOOTSTRAP && window.SPBU_BOOTSTRAP.mapbox_token) || '').trim();
+      if (token && token.startsWith('pk.')) {
+        wargaTileLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/dark-v11/tiles/{z}/{x}/{y}?access_token=' + encodeURIComponent(token), {
+          maxZoom: 19,
+          tileSize: 512,
+          zoomOffset: -1,
+          attribution: '© Mapbox'
+        });
+      } else {
+        wargaTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+          maxZoom: 19,
+          attribution: '© CARTO'
+        });
+      }
+      if (wargaMapInstance) {
+        wargaTileLayer.addTo(wargaMapInstance);
+      }
     },
 
     renderMapMarkers() {

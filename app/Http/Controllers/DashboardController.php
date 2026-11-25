@@ -159,6 +159,7 @@ class DashboardController extends Controller
                 'phone' => $user->phone,
                 'station_id' => $user->station_id,
             ],
+            'mapbox_token' => (string) config('services.mapbox.token', env('MAPBOX_ACCESS_TOKEN', '')),
         ];
     }
 

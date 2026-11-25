@@ -419,11 +419,19 @@
           <!-- RIGHT: Peta Live Pengiriman & SPBU (Dark Map) -->
           <div class="lg:col-span-5 obsidian-card rounded-2xl p-5 flex flex-col space-y-3">
             <div class="flex items-center justify-between gap-2">
-              <h2 class="text-sm font-semibold text-white">Aktivitas Pengiriman</h2>
-              <div class="flex items-center bg-[#0a0b0e] border border-white/[0.08] rounded-lg p-0.5 text-[10px] font-semibold">
-                <button onclick="SPBUApp.setMapFilter('ALL')" id="mapFilter-ALL" class="map-filter-btn px-2 py-1 rounded-md bg-white/[0.1] text-white">ALL</button>
-                <button onclick="SPBUApp.setMapFilter('TRUK')" id="mapFilter-TRUK" class="map-filter-btn px-2 py-1 rounded-md text-zinc-400 hover:text-white">TRUK</button>
-                <button onclick="SPBUApp.setMapFilter('SPBU')" id="mapFilter-SPBU" class="map-filter-btn px-2 py-1 rounded-md text-zinc-400 hover:text-white">SPBU</button>
+              <div class="flex items-center space-x-2">
+                <h2 class="text-sm font-semibold text-white">Aktivitas Pengiriman</h2>
+                <span id="mapProviderBadge" class="text-[9px] text-zinc-500 font-mono">CartoDB</span>
+              </div>
+              <div class="flex items-center space-x-1.5">
+                <div class="flex items-center bg-[#0a0b0e] border border-white/[0.08] rounded-lg p-0.5 text-[10px] font-semibold">
+                  <button onclick="SPBUApp.setMapFilter('ALL')" id="mapFilter-ALL" class="map-filter-btn px-2 py-1 rounded-md bg-white/[0.1] text-white">ALL</button>
+                  <button onclick="SPBUApp.setMapFilter('TRUK')" id="mapFilter-TRUK" class="map-filter-btn px-2 py-1 rounded-md text-zinc-400 hover:text-white">TRUK</button>
+                  <button onclick="SPBUApp.setMapFilter('SPBU')" id="mapFilter-SPBU" class="map-filter-btn px-2 py-1 rounded-md text-zinc-400 hover:text-white">SPBU</button>
+                </div>
+                <button onclick="SPBUApp.openMapboxModal()" class="bg-[#0a0b0e] hover:bg-white/[0.08] border border-white/[0.08] text-zinc-400 hover:text-emerald-400 p-1.5 rounded-lg text-xs transition" title="Pengaturan Mapbox API Key">
+                  <i class="fa-solid fa-key"></i>
+                </button>
               </div>
             </div>
 
@@ -1313,6 +1321,47 @@
           <button type="submit" class="bg-sky-600 hover:bg-sky-500 text-white px-5 py-2 rounded-lg font-bold">Simpan Pengiriman</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Modal Pengaturan Mapbox API Key -->
+  <div id="mapboxTokenModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-[#0e1014] border border-white/[0.1] rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
+        <div class="flex items-center space-x-2.5">
+          <span class="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
+            <i class="fa-solid fa-map-location-dot text-sm"></i>
+          </span>
+          <div>
+            <h3 class="font-bold text-sm text-white">Integrasi Mapbox API Key</h3>
+            <p class="text-[11px] text-zinc-400">Mapbox Dark v11 Vector/Raster Tiles</p>
+          </div>
+        </div>
+        <button onclick="SPBUApp.closeMapboxModal()" class="text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <p class="text-zinc-300 leading-relaxed">
+          Masukkan token akses publik Mapbox (<code class="text-emerald-400 font-mono">pk.eyJ...</code>) untuk mengaktifkan tile resmi <strong>Mapbox Dark v11</strong> beresolusi tinggi.
+        </p>
+        
+        <div>
+          <label class="block font-semibold text-zinc-300 mb-1">Mapbox Public Access Token</label>
+          <input type="text" id="mapboxTokenInput" placeholder="pk.eyJ1IjoieW91ci11c2VybmFtZSI..." class="w-full bg-[#13161c] border border-white/[0.08] rounded-xl px-3 py-2 text-white font-mono text-xs focus:outline-none focus:border-emerald-500">
+        </div>
+
+        <div class="p-3 rounded-xl bg-[#13161c] border border-white/[0.05] text-[11px] text-zinc-400 space-y-1">
+          <div class="font-semibold text-zinc-200"><i class="fa-solid fa-circle-info text-emerald-400 mr-1"></i>Catatan:</div>
+          <p>• Dapatkan token gratis di <a href="https://account.mapbox.com/access-tokens/" target="_blank" class="text-emerald-400 hover:underline">mapbox.com <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a> (Free 50.000 load/bulan).</p>
+          <p>• Token juga dapat disimpan di file <code class="text-zinc-300">.env</code> dengan variabel <code class="text-emerald-400">MAPBOX_ACCESS_TOKEN</code>.</p>
+          <p>• Jika dikosongkan, peta otomatis fallback ke tile CartoDB Dark Matter gratis.</p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end space-x-2 pt-2 border-t border-white/[0.08]">
+        <button type="button" onclick="SPBUApp.closeMapboxModal()" class="bg-[#181b22] hover:bg-[#20252e] text-zinc-300 px-4 py-2 rounded-xl text-xs font-semibold transition">Batal</button>
+        <button type="button" onclick="SPBUApp.saveMapboxToken()" class="bg-emerald-500 hover:bg-emerald-400 text-black px-4 py-2 rounded-xl text-xs font-bold transition shadow-lg shadow-emerald-500/20">Simpan & Terapkan</button>
+      </div>
     </div>
   </div>
 

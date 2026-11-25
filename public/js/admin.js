@@ -7,6 +7,7 @@
   'use strict';
 
   let mapInstance = null;
+  let adminTileLayer = null;
   let markersLayer = null;
   let stockChartInstance = null;
   let reportChartInstance = null;
@@ -152,13 +153,76 @@
         attributionControl: false
       }).setView([-6.28, 106.85], 11);
 
-      // Dark theme CartoDB Dark Matter tiles
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19
-      }).addTo(mapInstance);
+      this.setupTileLayer();
 
       markersLayer = L.layerGroup().addTo(mapInstance);
       this.renderMapMarkers();
+    },
+
+    getMapboxToken() {
+      return (localStorage.getItem('spbu_mapbox_token') || (window.SPBU_BOOTSTRAP && window.SPBU_BOOTSTRAP.mapbox_token) || '').trim();
+    },
+
+    setupTileLayer() {
+      if (adminTileLayer && mapInstance) {
+        mapInstance.removeLayer(adminTileLayer);
+      }
+      const token = this.getMapboxToken();
+      const badge = document.getElementById('mapProviderBadge');
+      if (token && token.startsWith('pk.')) {
+        adminTileLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/dark-v11/tiles/{z}/{x}/{y}?access_token=' + encodeURIComponent(token), {
+          maxZoom: 19,
+          tileSize: 512,
+          zoomOffset: -1,
+          attribution: '© Mapbox'
+        });
+        adminTileLayer.on('tileerror', () => {
+          console.warn('Mapbox tile warning: periksa kembali validitas Mapbox access token Anda.');
+        });
+        if (badge) {
+          badge.textContent = 'Mapbox Dark v11';
+          badge.className = 'text-[9px] text-emerald-400 font-mono font-semibold';
+        }
+      } else {
+        adminTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+          maxZoom: 19,
+          attribution: '© CARTO'
+        });
+        if (badge) {
+          badge.textContent = 'CartoDB';
+          badge.className = 'text-[9px] text-zinc-500 font-mono';
+        }
+      }
+      if (mapInstance) {
+        adminTileLayer.addTo(mapInstance);
+      }
+    },
+
+    openMapboxModal() {
+      const modal = document.getElementById('mapboxTokenModal');
+      const input = document.getElementById('mapboxTokenInput');
+      if (!modal) return;
+      if (input) input.value = this.getMapboxToken();
+      modal.classList.remove('hidden');
+    },
+
+    closeMapboxModal() {
+      const modal = document.getElementById('mapboxTokenModal');
+      if (modal) modal.classList.add('hidden');
+    },
+
+    saveMapboxToken() {
+      const input = document.getElementById('mapboxTokenInput');
+      const token = (input?.value || '').trim();
+      if (token) {
+        localStorage.setItem('spbu_mapbox_token', token);
+        this.showToast('Token Mapbox disimpan! Peta aktif dengan Mapbox Dark v11.', 'success');
+      } else {
+        localStorage.removeItem('spbu_mapbox_token');
+        this.showToast('Token Mapbox dikosongkan. Peta beralih ke CartoDB Dark Matter gratis.', 'info');
+      }
+      this.closeMapboxModal();
+      this.setupTileLayer();
     },
 
     setMapFilter(filter) {
