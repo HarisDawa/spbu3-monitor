@@ -40,6 +40,10 @@ $overrides = [
     'DB_DATABASE' => $tmpSqlite,
 ];
 
+if (($appKey = getenv('APP_KEY')) !== false) {
+    $overrides['APP_KEY'] = trim($appKey);
+}
+
 foreach ($overrides as $key => $value) {
     putenv("{$key}={$value}");
     $_ENV[$key] = $value;
