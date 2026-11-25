@@ -77,6 +77,10 @@
     .leaflet-container {
       background: #0b0d11 !important;
     }
+    /* Obsidian dark filter for free OpenStreetMap tiles (No API Key Required, No Watermark) */
+    .dark-tiles .leaflet-tile-pane {
+      filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+    }
   </style>
 </head>
 <body class="bg-[#08090b] text-zinc-100 min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-black">

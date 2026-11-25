@@ -174,7 +174,10 @@
         wargaMapInstance.removeLayer(wargaTileLayer);
       }
       const token = (localStorage.getItem('spbu_mapbox_token') || (window.SPBU_BOOTSTRAP && window.SPBU_BOOTSTRAP.mapbox_token) || '').trim();
+      const mapContainer = document.getElementById('wargaMap');
+
       if (token && token.startsWith('pk.')) {
+        if (mapContainer) mapContainer.classList.remove('dark-tiles');
         wargaTileLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/dark-v11/tiles/{z}/{x}/{y}?access_token=' + encodeURIComponent(token), {
           maxZoom: 19,
           tileSize: 512,
@@ -182,9 +185,11 @@
           attribution: '© Mapbox'
         });
       } else {
-        wargaTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        // Free OpenStreetMap with Obsidian Dark Theme (NO API KEY REQUIRED, NO WATERMARK)
+        if (mapContainer) mapContainer.classList.add('dark-tiles');
+        wargaTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 19,
-          attribution: '© CARTO'
+          attribution: '© OpenStreetMap'
         });
       }
       if (wargaMapInstance) {

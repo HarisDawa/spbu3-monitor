@@ -57,6 +57,10 @@
     .leaflet-container {
       background: #0b0d11 !important;
     }
+    /* Obsidian dark filter for free OpenStreetMap tiles (No API Key Required, No Watermark) */
+    .dark-tiles .leaflet-tile-pane {
+      filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+    }
     /* Mobile frame preview mode */
     .mobile-frame {
       max-width: 440px;
