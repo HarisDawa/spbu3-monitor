@@ -21,16 +21,11 @@ foreach ([
     }
 }
 
-$sourceSqlite = __DIR__.'/../database/database.sqlite';
 $tmpSqlite = '/tmp/database.sqlite';
-$needsMigration = false;
+$migratedMarker = '/tmp/.spbu_migrated_v2';
+$needsMigration = ! file_exists($tmpSqlite) || ! file_exists($migratedMarker);
 if (! file_exists($tmpSqlite)) {
-    if (file_exists($sourceSqlite)) {
-        copy($sourceSqlite, $tmpSqlite);
-    } else {
-        touch($tmpSqlite);
-        $needsMigration = true;
-    }
+    touch($tmpSqlite);
 }
 
 $overrides = [
@@ -67,6 +62,7 @@ if ($needsMigration) {
     $kernel = $app->make(Kernel::class);
     $kernel->call('migrate', ['--force' => true]);
     $kernel->call('db:seed', ['--force' => true]);
+    touch($migratedMarker);
 }
 
 $_SERVER['SCRIPT_NAME'] = '/index.php';
