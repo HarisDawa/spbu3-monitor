@@ -1,0 +1,174 @@
+<mxfile host="app.diagrams.net" agent="Antigravity" version="21.0.0" type="device">
+  <diagram id="use-case-spbu" name="Use Case Diagram SPBU">
+    <mxGraphModel dx="1422" dy="894" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1350" pageHeight="950" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- SYSTEM BOUNDARY -->
+        <mxCell id="boundary" value="&lt;b style=&quot;font-size: 15px;&quot;&gt;Sistem Monitoring Logistik SPBU &amp;amp; Portal Warga (spbu.hub)&lt;/b&gt;" style="swimlane;whiteSpace=wrap;html=1;startSize=35;collapsible=0;recursiveResize=0;expand=0;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2;fontColor=#000000;align=center;" vertex="1" parent="1">
+          <mxGeometry x="190" y="40" width="870" height="850" as="geometry" />
+        </mxCell>
+
+        <!-- SHARED USE CASE: LOGIN (YELLOW) -->
+        <mxCell id="uc_login" value="Login Sistem" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=1.5;fontSize=12;fontStyle=1;fontColor=#000000;" vertex="1" parent="boundary">
+          <mxGeometry x="350" y="45" width="170" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== WARGA USE CASES (BLUE) ==================== -->
+        <mxCell id="uc_w1" value="Melihat Peta SPBU &amp;amp;&#xa;Stok BBM Real-time" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=1.5;fontSize=11;fontColor=#000000;" vertex="1" parent="boundary">
+          <mxGeometry x="40" y="120" width="190" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc_w2" value="Memfilter SPBU&#xa;(Jenis BBM &amp;amp; Antrean)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=1.5;fontSize=11;fontColor=#000000;" vertex="1" parent="boundary">
+          <mxGeometry x="40" y="200" width="190" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc_w3" value="Melihat Estimasi&#xa;Waktu Tunggu Antrean" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=1.5;fontSize=11;fontColor=#000000;" vertex="1" parent="boundary">
+          <mxGeometry x="40" y="280" width="190" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc_w4" value="Membuka Navigasi Rute&#xa;(Google Maps)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=1.5;fontSize=11;fontColor=#000000;" vertex="1" parent="boundary">
+          <mxGeometry x="40" y="360" width="190" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc_w5" value="Membuat Laporan&#xa;Pengaduan Kendala" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=1.5;fontSize=11;fontColor=#000000;" vertex="1" parent="boundary">
+          <mxGeometry x="40" y="445" width="190" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc_w6" value="Mengunggah Foto&#xa;Bukti Kejadian" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=1.5;fontSize=11;fontColor=#000000;" vertex="1" parent="boundary">
+          <mxGeometry x="40" y="540" width="190" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc_w7" value="Melacak Status Progres&#xa;Laporan (Live Stepper)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=1.5;fontSize=11;fontColor=#000000;" vertex="1" parent="boundary">
+          <mxGeometry x="40" y="635" width="190" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc_w8" value="Mengelola Profil&#xa;Pengguna" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=1.5;fontSize=11;fontColor=#000000;" vertex="1" parent="boundary">
+          <mxGeometry x="40" y="725" width="190" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== ADMIN USE CASES (RED/CORAL) ==================== -->
+        <mxCell id="uc_a1" value="Melihat Dashboard Bento &amp;amp;&#xa;Health Logistik BBM" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=1.5;fontSize=11;fontColor=#000000;" vertex="1" parent="boundary">
+          <mxGeometry x="640" y="120" width="190" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc_a2" value="Memantau Posisi GPS&#xa;Truk Tangki di Peta" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=1.5;fontSize=11;fontColor=#000000;" vertex="1" parent="boundary">
+          <mxGeometry x="640" y="200" width="190" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc_a3" value="Menjadwalkan Pengiriman&#xa;BBM ke SPBU" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=1.5;fontSize=11;fontColor=#000000;" vertex="1" parent="boundary">
+          <mxGeometry x="640" y="280" width="190" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc_a4" value="Simulasi Pergerakan&#xa;Armada Truk Logistik" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=1.5;fontSize=11;fontColor=#000000;" vertex="1" parent="boundary">
+          <mxGeometry x="640" y="360" width="190" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc_a5" value="Mengelola Stok Tangki &amp;amp;&#xa;Threshold Kritis SPBU" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=1.5;fontSize=11;fontColor=#000000;" vertex="1" parent="boundary">
+          <mxGeometry x="640" y="445" width="190" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc_a6" value="Mengelola Data Master&#xa;SPBU &amp;amp; Jenis BBM" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=1.5;fontSize=11;fontColor=#000000;" vertex="1" parent="boundary">
+          <mxGeometry x="640" y="530" width="190" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc_a7" value="Memverifikasi &amp;amp; Memberi&#xa;Tindak Lanjut Laporan" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=1.5;fontSize=11;fontColor=#000000;" vertex="1" parent="boundary">
+          <mxGeometry x="640" y="615" width="190" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc_a8" value="Mengatur Data Pengguna&#xa;&amp;amp; Hak Akses Sistem" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=1.5;fontSize=11;fontColor=#000000;" vertex="1" parent="boundary">
+          <mxGeometry x="640" y="700" width="190" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== SUB / INCLUDED USE CASES (GREEN) ==================== -->
+        <mxCell id="uc_sub1" value="Auto-Restock Tangki&#xa;BBM Saat Truk Tiba" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1.5;fontSize=11;fontColor=#000000;" vertex="1" parent="boundary">
+          <mxGeometry x="345" y="320" width="180" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc_sub2" value="Melihat Bukti Foto &amp;amp;&#xa;Detail Pengaduan" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=1.5;fontSize=11;fontColor=#000000;" vertex="1" parent="boundary">
+          <mxGeometry x="345" y="580" width="180" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- <<include>> RELATIONSHIPS -->
+        <mxCell id="inc_foto" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=none;html=1;endArrow=open;endSize=10;dashed=1;strokeWidth=1.5;fontSize=10;fontColor=#555555;align=center;" edge="1" parent="boundary" source="uc_w5" target="uc_w6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="inc_restock" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=none;html=1;endArrow=open;endSize=10;dashed=1;strokeWidth=1.5;fontSize=10;fontColor=#555555;align=center;" edge="1" parent="boundary" source="uc_a3" target="uc_sub1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="inc_verif" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=none;html=1;endArrow=open;endSize=10;dashed=1;strokeWidth=1.5;fontSize=10;fontColor=#555555;align=center;" edge="1" parent="boundary" source="uc_a7" target="uc_sub2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== ACTOR 1: USER / WARGA (LEFT) ==================== -->
+        <mxCell id="actor_warga" value="&lt;b&gt;User&lt;br&gt;(Masyarakat)&lt;/b&gt;" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;strokeWidth=2;fontColor=#000000;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="60" y="415" width="50" height="95" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== ACTOR 2: ADMIN LOGISTIK (RIGHT) ==================== -->
+        <mxCell id="actor_admin" value="&lt;b&gt;Admin&lt;br&gt;(Logistik Pusat)&lt;/b&gt;" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;strokeWidth=2;fontColor=#000000;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="415" width="50" height="95" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== ASSOCIATIONS (WARGA) ==================== -->
+        <mxCell id="edge_w_login" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" edge="1" parent="1" source="actor_warga" target="uc_login">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_w1" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" edge="1" parent="1" source="actor_warga" target="uc_w1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_w2" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" edge="1" parent="1" source="actor_warga" target="uc_w2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_w3" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" edge="1" parent="1" source="actor_warga" target="uc_w3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_w4" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" edge="1" parent="1" source="actor_warga" target="uc_w4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_w5" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" edge="1" parent="1" source="actor_warga" target="uc_w5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_w7" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" edge="1" parent="1" source="actor_warga" target="uc_w7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_w8" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" edge="1" parent="1" source="actor_warga" target="uc_w8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== ASSOCIATIONS (ADMIN) ==================== -->
+        <mxCell id="edge_a_login" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" edge="1" parent="1" source="actor_admin" target="uc_login">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_a1" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" edge="1" parent="1" source="actor_admin" target="uc_a1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_a2" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" edge="1" parent="1" source="actor_admin" target="uc_a2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_a3" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" edge="1" parent="1" source="actor_admin" target="uc_a3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_a4" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" edge="1" parent="1" source="actor_admin" target="uc_a4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_a5" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" edge="1" parent="1" source="actor_admin" target="uc_a5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_a6" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" edge="1" parent="1" source="actor_admin" target="uc_a6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_a7" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" edge="1" parent="1" source="actor_admin" target="uc_a7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_a8" style="endArrow=none;html=1;rounded=0;strokeWidth=1.5;" edge="1" parent="1" source="actor_admin" target="uc_a8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
