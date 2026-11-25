@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 
@@ -22,8 +23,14 @@ foreach ([
 
 $sourceSqlite = __DIR__.'/../database/database.sqlite';
 $tmpSqlite = '/tmp/database.sqlite';
-if (! file_exists($tmpSqlite) && file_exists($sourceSqlite)) {
-    copy($sourceSqlite, $tmpSqlite);
+$needsMigration = false;
+if (! file_exists($tmpSqlite)) {
+    if (file_exists($sourceSqlite)) {
+        copy($sourceSqlite, $tmpSqlite);
+    } else {
+        touch($tmpSqlite);
+        $needsMigration = true;
+    }
 }
 
 $overrides = [
@@ -55,5 +62,11 @@ require __DIR__.'/../vendor/autoload.php';
 /** @var Application $app */
 $app = require_once __DIR__.'/../bootstrap/app.php';
 $app->useStoragePath($storagePath);
+
+if ($needsMigration) {
+    $kernel = $app->make(Kernel::class);
+    $kernel->call('migrate', ['--force' => true]);
+    $kernel->call('db:seed', ['--force' => true]);
+}
 
 $app->handleRequest(Request::capture());
